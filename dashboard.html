@@ -41,7 +41,7 @@
   </main>
 
   <footer>
-    Click a device to open its control tab (one tab per device). Use <b>Fetch</b> or <b>Upload</b> to send commands.
+    Click a device to open its control tab (uses external device.html). One tab per device.
   </footer>
 
   <script>
@@ -57,14 +57,10 @@
       if (msg.type === "devices") {
         devices = msg.devices || {};
         render();
-      } else if (msg.type === "response") {
-        const win = window.open("", msg.clientId);
-        if (win && win.pushLog) win.pushLog(msg.output);
       }
     };
 
     function render() {
-      const query = searchEl.value.toLowerCase();
       const now = Date.now();
       const all = Object.entries(devices).map(([id, d]) => ({
         clientId: id,
@@ -72,17 +68,17 @@
         online: d.online ?? (now - (d.lastSeen || 0) < 15000)
       }));
 
-      const online = all.filter(d => d.online && match(d));
-      const offline = all.filter(d => !d.online && match(d));
+      const query = searchEl.value.toLowerCase();
+      const online = all.filter(d => d.online && match(d, query));
+      const offline = all.filter(d => !d.online && match(d, query));
 
       drawGrid(onlineEl, online, true);
       drawGrid(offlineEl, offline, false);
     }
 
-    function match(d) {
-      const q = searchEl.value.toLowerCase();
+    function match(d, q) {
       if (!q) return true;
-      return (d.deviceName || "").toLowerCase().includes(q) || d.clientId.toLowerCase().includes(q);
+      return (d.name || "").toLowerCase().includes(q) || d.clientId.toLowerCase().includes(q);
     }
 
     function drawGrid(container, list, isOnline) {
@@ -95,7 +91,7 @@
         const card = document.createElement("div");
         card.className = `device ${d.online ? "online" : "offline"}`;
         card.innerHTML = `
-          <div class="title">${escapeHtml(d.deviceName || "(unnamed)")}</div>
+          <div class="title">${escapeHtml(d.name || "(unnamed)")}</div>
           <div class="meta">ID: ${escapeHtml(d.clientId)}</div>
           <div class="meta">Last seen: ${timeAgo(d.lastSeen)}</div>
         `;
@@ -105,57 +101,23 @@
     }
 
     function openDeviceTab(d) {
-      const win = window.open("", d.clientId);
-      if (!win.document.body || win.document.body.innerHTML.trim() === "") {
-        const name = escapeHtml(d.deviceName || d.clientId);
-        win.document.open();
-        win.document.write(`
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"><title>${name}</title>
-<style>
-body{font-family:system-ui;margin:20px;background:#f9fafb;color:#111;}
-button{padding:8px 12px;border-radius:6px;border:none;margin-right:8px;cursor:pointer;color:#fff;font-weight:600;}
-.fetch{background:#10b981;}
-.upload{background:#2563eb;}
-.close{background:#ef4444;}
-#log{white-space:pre-wrap;background:#fff;border:1px solid #eee;padding:10px;border-radius:8px;margin-top:10px;min-height:180px;max-height:70vh;overflow:auto;font-family:monospace;font-size:13px;}
-</style>
-</head>
-<body>
-<h2>${name}</h2>
-<p>ID: ${escapeHtml(d.clientId)}</p>
-<button class="fetch" id="btnFetch">Fetch</button>
-<button class="upload" id="btnUpload">Upload</button>
-<button class="close" id="btnClose">Close</button>
-<pre id="log">Ready.</pre>
-<script>
-const logEl = document.getElementById("log");
-function pushLog(m){logEl.textContent+="\\n["+new Date().toLocaleTimeString()+"] "+m;logEl.scrollTop=logEl.scrollHeight;}
-window.pushLog=pushLog;
-async function sendCmd(cmd){
-  pushLog("Sending "+cmd+"...");
-  try{
-    const r=await fetch("/command",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({targetClientId:"${d.clientId}",command:cmd})});
-    if(!r.ok) pushLog("Failed: "+r.status);
-    else pushLog("Command sent ✅");
-  }catch(e){pushLog("Network error: "+e.message);}
-}
-document.getElementById("btnFetch").onclick=()=>sendCmd("fetch");
-document.getElementById("btnUpload").onclick=()=>sendCmd("upload");
-document.getElementById("btnClose").onclick=()=>window.close();
-</script>
-</body>
-</html>
-        `);
-        win.document.close();
-      }
-      win.focus();
+      const url = `/device/${encodeURIComponent(d.clientId)}?name=${encodeURIComponent(d.name || d.clientId)}`;
+      window.open(url, d.clientId);
     }
 
-    function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));}
-    function timeAgo(ts){if(!ts)return"never";const d=Math.floor((Date.now()-ts)/1000);if(d<60)return d+"s ago";if(d<3600)return Math.floor(d/60)+"m ago";return Math.floor(d/3600)+"h ago";}
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return "never";
+      const d = Math.floor((Date.now() - ts) / 1000);
+      if (d < 60) return d + "s ago";
+      if (d < 3600) return Math.floor(d / 60) + "m ago";
+      return Math.floor(d / 3600) + "h ago";
+    }
+
     searchEl.oninput = render;
   </script>
 </body>
