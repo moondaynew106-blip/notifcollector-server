@@ -101,7 +101,10 @@
   </main>
 
   <script>
-    const ws = new WebSocket(`ws://${location.host}`);
+    const ws = new WebSocket(
+  (location.protocol === "https:" ? "wss://" : "ws://") + location.host
+	);
+	
     const deviceSelect = document.getElementById("deviceSelect");
     const outputDiv = document.getElementById("output");
 
