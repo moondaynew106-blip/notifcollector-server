@@ -1,51 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{name}}</title>
+  <title>Device Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {font-family: system-ui; margin: 20px; background: #f9fafb; color: #111;}
-    button {padding: 8px 12px; border-radius: 6px; border: none; margin-right: 8px; cursor: pointer; color: #fff; font-weight: 600;}
-    .fetch {background: #10b981;}
-    .upload {background: #2563eb;}
-    .close {background: #ef4444;}
-    #log {white-space: pre-wrap; background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px;
-          margin-top: 10px; min-height: 180px; max-height: 70vh; overflow: auto; font-family: monospace; font-size: 13px;}
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 20px;
+      background: #f9fafb;
+      color: #111;
+    }
+    h2 { margin-bottom: 4px; }
+    p { margin-top: 0; color: #555; }
+    button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      margin-right: 8px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 600;
+    }
+    .fetch { background: #10b981; }
+    .upload { background: #2563eb; }
+    .close { background: #ef4444; }
+    #log {
+      white-space: pre-wrap;
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      min-height: 180px;
+      max-height: 70vh;
+      overflow: auto;
+      font-family: monospace;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
-  <h2>{{name}}</h2>
-  <p>ID: {{clientId}}</p>
+  <h2 id="devName"></h2>
+  <p>ID: <span id="devId"></span></p>
 
   <button class="fetch" id="btnFetch">Fetch</button>
   <button class="upload" id="btnUpload">Upload</button>
   <button class="close" id="btnClose">Close</button>
 
-  <pre id="log">Ready.</pre>
+  <pre id="log">Connecting...</pre>
 
   <script>
-    const logEl = document.getElementById("log");
-    function pushLog(m){ logEl.textContent += "\\n[" + new Date().toLocaleTimeString() + "] " + m; logEl.scrollTop = logEl.scrollHeight; }
-    window.pushLog = pushLog;
+    // --- Setup vars from query string ---
+    const urlParams = new URLSearchParams(location.search);
+    const clientId = urlParams.get("id");
+    const deviceName = urlParams.get("name") || clientId;
 
-    async function sendCmd(cmd){
-      pushLog("Sending " + cmd + "...");
+    document.title = deviceName;
+    document.getElementById("devName").textContent = deviceName;
+    document.getElementById("devId").textContent = clientId;
+
+    const logEl = document.getElementById("log");
+    function pushLog(msg) {
+      const ts = new Date().toLocaleTimeString();
+      logEl.textContent += `\n[${ts}] ${msg}`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // --- Send commands via HTTP ---
+    async function sendCmd(cmd) {
+      pushLog(`Sending ${cmd}...`);
       try {
         const r = await fetch("/command", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ targetClientId: "{{clientId}}", command: cmd })
+          body: JSON.stringify({ targetClientId: clientId, command: cmd })
         });
-        if(!r.ok) pushLog("Failed: " + r.status);
-        else pushLog("Command sent ✅");
-      } catch(e) {
-        pushLog("Network error: " + e.message);
+        if (!r.ok) pushLog(`❌ Failed: ${r.status}`);
+        else pushLog(`✅ Command sent (${cmd})`);
+      } catch (e) {
+        pushLog(`⚠️ Network error: ${e.message}`);
       }
     }
 
     document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
+
+    // --- Listen for WebSocket responses ---
+    const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
+    const ws = new WebSocket(wsProto + location.host);
+
+    ws.onopen = () => pushLog("🔌 WebSocket connected");
+    ws.onclose = () => pushLog("❌ WebSocket disconnected");
+    ws.onerror = () => pushLog("⚠️ WebSocket error");
+
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if (msg.type === "response" && msg.clientId === clientId) {
+          pushLog(`📩 Response: ${msg.output}`);
+        }
+      } catch (e) {
+        console.error("WS parse error", e);
+      }
+    };
+
+    // --- allow dashboard parent to push logs too ---
+    window.pushRemoteLog = pushLog;
   </script>
 </body>
 </html>
