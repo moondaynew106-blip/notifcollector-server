@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{name}}</title>
+  <style>
+    body {font-family: system-ui; margin: 20px; background: #f9fafb; color: #111;}
+    button {padding: 8px 12px; border-radius: 6px; border: none; margin-right: 8px; cursor: pointer; color: #fff; font-weight: 600;}
+    .fetch {background: #10b981;}
+    .upload {background: #2563eb;}
+    .close {background: #ef4444;}
+    #log {white-space: pre-wrap; background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px;
+          margin-top: 10px; min-height: 180px; max-height: 70vh; overflow: auto; font-family: monospace; font-size: 13px;}
+  </style>
+</head>
+<body>
+  <h2>{{name}}</h2>
+  <p>ID: {{clientId}}</p>
+
+  <button class="fetch" id="btnFetch">Fetch</button>
+  <button class="upload" id="btnUpload">Upload</button>
+  <button class="close" id="btnClose">Close</button>
+
+  <pre id="log">Ready.</pre>
+
+  <script>
+    const logEl = document.getElementById("log");
+    function pushLog(m){ logEl.textContent += "\\n[" + new Date().toLocaleTimeString() + "] " + m; logEl.scrollTop = logEl.scrollHeight; }
+    window.pushLog = pushLog;
+
+    async function sendCmd(cmd){
+      pushLog("Sending " + cmd + "...");
+      try {
+        const r = await fetch("/command", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ targetClientId: "{{clientId}}", command: cmd })
+        });
+        if(!r.ok) pushLog("Failed: " + r.status);
+        else pushLog("Command sent ✅");
+      } catch(e) {
+        pushLog("Network error: " + e.message);
+      }
+    }
+
+    document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
+    document.getElementById("btnUpload").onclick = () => sendCmd("upload");
+    document.getElementById("btnClose").onclick = () => window.close();
+  </script>
+</body>
+</html>
