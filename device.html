@@ -54,7 +54,8 @@
     // --- Setup vars from query string ---
     const urlParams = new URLSearchParams(location.search);
     const clientId = urlParams.get("id");
-    const deviceName = urlParams.get("name") || clientId;
+    const pathParts = window.location.pathname.split("/");
+    const clientId = pathParts[pathParts.length - 1];
 
     document.title = deviceName;
     document.getElementById("devName").textContent = deviceName;
