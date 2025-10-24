@@ -1,168 +1,300 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NotifCollector Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NotifCollector — Devices</title>
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 0;
-      color: #222;
+    :root{
+      --bg:#f5f7fb; --card:#fff; --muted:#6b7280; --accent:#0ea5a8; --danger:#ef4444;
     }
-
-    header {
-      background: #2f3640;
-      color: #fff;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.3rem;
-    }
-
-    main {
-      max-width: 700px;
-      margin: 2rem auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    select, input, button {
-      font-size: 1rem;
-      padding: 0.5rem;
-      margin: 0.3rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      background: #273c75;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #40739e;
-    }
-
-    #output {
-      margin-top: 1rem;
-      background: #f1f2f6;
-      border-radius: 8px;
-      padding: 1rem;
-      white-space: pre-wrap;
-      font-family: monospace;
-      min-height: 120px;
-      overflow-y: auto;
-    }
-
-    .device-option {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .online {
-      background-color: #44bd32;
-      box-shadow: 0 0 4px #44bd32;
-    }
-
-    .offline {
-      background-color: #e84118;
-      box-shadow: 0 0 4px #e84118;
-    }
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{background:var(--bg);color:#0f172a;padding:20px;box-sizing:border-box}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:1.25rem}
+    #search{padding:8px;border-radius:8px;border:1px solid #e6eef6;background:#fff}
+    main{display:flex;gap:20px;margin-top:20px}
+    .col{flex:1;min-width:280px}
+    .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .panel h2{margin:0 0 8px 0;font-size:1rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .device{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef3f7;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform .12s,box-shadow .12s}
+    .device:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(2,6,23,0.06)}
+    .device .title{font-weight:600}
+    .device .meta{font-size:12px;color:var(--muted)}
+    .online{border-left:6px solid var(--accent)}
+    .offline{border-left:6px solid var(--danger);opacity:.7}
+    .controls{display:flex;gap:8px;margin-top:8px}
+    .btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+    .btn.fetch{background:var(--accent);color:#fff}
+    .btn.upload{background:#2563eb;color:#fff}
+    .small{font-size:12px;color:var(--muted)}
+    footer{margin-top:18px;font-size:13px;color:var(--muted)}
+    @media(max-width:900px){main{flex-direction:column}}
   </style>
 </head>
 <body>
-  <header>NotifCollector Dashboard</header>
-  <main>
-    <h3>Connected Devices</h3>
-    <select id="deviceSelect"></select>
+  <header>
+    <h1>NotifCollector Dashboard</h1>
+    <input id="search" placeholder="Search devices by name or id" />
+  </header>
 
-    <div>
-      <input type="text" id="commandInput" placeholder="Enter command (e.g., fetch)" />
-      <button onclick="sendCommand()">Send</button>
+  <main>
+    <div class="col">
+      <div class="panel">
+        <h2>🟢 Online devices</h2>
+        <div id="online-grid" class="grid"></div>
+      </div>
     </div>
 
-    <h3>Responses</h3>
-    <div id="output"></div>
+    <div class="col">
+      <div class="panel">
+        <h2>🔴 Offline devices</h2>
+        <div id="offline-grid" class="grid"></div>
+      </div>
+    </div>
   </main>
 
+  <footer>
+    Click a device card to open a control tab for that device (one tab per device). Use the buttons inside the device tab to send `fetch` or `upload`.
+  </footer>
+
+<script>
+/*
+  Dashboard client:
+  - Uses a WebSocket to receive live device list and responses (server should send JSON messages:
+      { type: "devices", devices: { clientId: { name, lastSeen, online } , ... } }
+      { type: "response", clientId, output }
+    )
+  - Renders online devices first then offline devices.
+  - Clicking a device opens/ focuses a new tab named by the device clientId.
+  - The new tab's UI lets you send POST /command { targetClientId, command } and shows a simple log.
+*/
+
+const wsProto = (location.protocol === "https:") ? "wss://" : "ws://";
+const wsURL = wsProto + location.host;
+const ws = new WebSocket(wsURL);
+
+const onlineGrid = document.getElementById('online-grid');
+const offlineGrid = document.getElementById('offline-grid');
+const searchInput = document.getElementById('search');
+
+let devices = {}; // clientId -> { name, lastSeen, online }
+
+ws.addEventListener('open', () => {
+  logConsole("WebSocket connected");
+  // request current device snapshot if server supports a request; otherwise server should push devices
+});
+
+ws.addEventListener('message', evt => {
+  try {
+    const msg = JSON.parse(evt.data);
+    if (msg.type === "devices") {
+      // server may send devices as object or array
+      if (Array.isArray(msg.devices)) {
+        devices = {};
+        for (const d of msg.devices) devices[d.clientId] = d;
+      } else devices = msg.devices || {};
+      renderAll();
+    } else if (msg.type === "response") {
+      // forward response into device tab window if open (by name)
+      const win = window.open('', msg.clientId);
+      const payload = msg.output || '';
+      if (win && !win.closed) {
+        try {
+          // try to call a function in child tab if it exists
+          if (typeof win.pushRemoteLog === 'function') {
+            win.pushRemoteLog(payload);
+          } else {
+            // if function not present, try to append to #remoteLog element
+            const el = win.document.getElementById('remoteLog');
+            if (el) el.textContent += `\n${payload}`;
+          }
+        } catch (e) {
+          // cross-origin shouldn't happen because tab was created by us with about:blank and written
+        }
+      } else {
+        // keep a small console in this dashboard if target tab not open
+        logConsole(`Response from ${msg.clientId}: ${payloadSnippet(payload)}`);
+      }
+    }
+  } catch (e) {
+    console.error("WS parse error", e);
+  }
+});
+
+ws.addEventListener('close', () => logConsole("WebSocket disconnected"));
+ws.addEventListener('error', (e) => logConsole("WebSocket error"));
+
+function payloadSnippet(s) {
+  if (!s) return '';
+  return s.length > 160 ? s.slice(0,160) + "…" : s;
+}
+
+function renderAll() {
+  const q = searchInput.value.trim().toLowerCase();
+  const list = Object.entries(devices).map(([id,info]) => ({ clientId:id, ...info }));
+  // determine online status: if server provided online use it, otherwise deduce from lastSeen (ms)
+  const now = Date.now();
+  list.forEach(d => {
+    if (typeof d.online === 'undefined') {
+      const ls = Number(d.lastSeen) || 0;
+      d.online = (now - ls) < 15000;
+    }
+  });
+  // filter by search
+  const filtered = list.filter(d => {
+    if (!q) return true;
+    return (d.deviceName && d.deviceName.toLowerCase().includes(q)) || d.clientId.toLowerCase().includes(q);
+  });
+  // sort: online first (newest first), then offline (newest first)
+  const online = filtered.filter(d=>d.online).sort((a,b)=> (b.lastSeen||0)-(a.lastSeen||0));
+  const offline = filtered.filter(d=>!d.online).sort((a,b)=> (b.lastSeen||0)-(a.lastSeen||0));
+
+  renderGrid(onlineGrid, online, true);
+  renderGrid(offlineGrid, offline, false);
+}
+
+function renderGrid(container, items, isOnline) {
+  container.innerHTML = '';
+  if (items.length === 0) {
+    const el = document.createElement('div');
+    el.className = 'device ' + (isOnline ? 'online' : 'offline');
+    el.innerHTML = `<div class="title small">${isOnline ? 'No online devices' : 'No offline devices'}</div>`;
+    container.appendChild(el);
+    return;
+  }
+
+  for (const d of items) {
+    const card = document.createElement('div');
+    card.className = 'device ' + (d.online ? 'online' : 'offline');
+    const last = d.lastSeen ? timeAgo(Number(d.lastSeen)) : 'never';
+    card.innerHTML = `
+      <div class="title">${escapeHtml(d.deviceName || '(unnamed)')}</div>
+      <div class="meta small">ID: ${escapeHtml(d.clientId)}</div>
+      <div class="meta small">last seen: ${last}</div>
+      <div class="controls">
+        <button class="btn fetch" data-id="${d.clientId}">Open</button>
+      </div>
+    `;
+    // clicking anywhere on card opens tab
+    card.querySelector('.btn.fetch').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      openDeviceTab(d);
+    });
+    card.addEventListener('click', () => openDeviceTab(d));
+    container.appendChild(card);
+  }
+}
+
+searchInput.addEventListener('input', () => renderAll());
+
+function openDeviceTab(device) {
+  // Use clientId as window name so only one tab per device is opened
+  const name = device.clientId;
+  const win = window.open('', name);
+
+  // If tab is new or blank, write content
+  try {
+    if (!win.document || win.document.location.href === 'about:blank' || win.document.body.innerHTML.trim() === '') {
+      const safeName = escapeHtml(device.deviceName || device.clientId);
+      const clientId = device.clientId;
+      win.document.open();
+      win.document.write(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>${safeName}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body{font-family:system-ui;padding:18px;background:#f7fafc;color:#071124}
+    h1{margin:0 0 12px;font-size:1.25rem}
+    .btn{padding:10px 14px;margin-right:8px;border-radius:8px;border:0;cursor:pointer;color:#fff;font-weight:700}
+    .fetch{background:#10b981}
+    .upload{background:#2563eb}
+    #remoteLog{white-space:pre-wrap;background:#fff;padding:12px;border-radius:8px;border:1px solid #e6eef6;min-height:200px;max-height:60vh;overflow:auto;margin-top:12px;font-family:monospace;font-size:13px}
+    .small{color:#64748b;font-size:13px}
+  </style>
+</head>
+<body>
+  <h1>${safeName}</h1>
+  <div class="small">ID: ${escapeHtml(clientId)}</div>
+  <div style="margin-top:14px;">
+    <button class="btn fetch" id="btnFetch">Fetch</button>
+    <button class="btn upload" id="btnUpload">Upload</button>
+    <button class="btn" id="btnClose" style="background:#ef4444">Close</button>
+  </div>
+  <div id="remoteLog">Waiting — commands you send will show status & responses will append here (if server forwards responses to dashboard and dashboard forwards them to this tab).</div>
+
   <script>
-    const ws = new WebSocket(
-  (location.protocol === "https:" ? "wss://" : "ws://") + location.host
-	);
-	
-    const deviceSelect = document.getElementById("deviceSelect");
-    const outputDiv = document.getElementById("output");
+    const SERVER = location.origin;
+    const cid = ${JSON.stringify(clientId)};
+    const logEl = document.getElementById('remoteLog');
 
-    let devices = {};
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "devices") {
-        devices = data.devices;
-        updateDeviceList();
-      } else if (data.type === "response") {
-        const name = devices[data.clientId]?.name || data.clientId;
-        logOutput(`💬 ${name}: ${data.output}`);
-      }
-    };
-
-    function updateDeviceList() {
-      deviceSelect.innerHTML = "";
-      const entries = Object.entries(devices);
-      if (entries.length === 0) {
-        const opt = document.createElement("option");
-        opt.textContent = "(No devices connected)";
-        deviceSelect.appendChild(opt);
-        return;
-      }
-
-      for (const [id, dev] of entries) {
-        const opt = document.createElement("option");
-        opt.value = id;
-        const dot = dev.online
-          ? "🟢"
-          : "🔴";
-        opt.textContent = `${dot} ${dev.name} (${id})`;
-        deviceSelect.appendChild(opt);
-      }
-    }
-
-    async function sendCommand() {
-      const targetClientId = deviceSelect.value;
-      const command = document.getElementById("commandInput").value.trim();
-      if (!targetClientId || !command) {
-        alert("Please select a device and enter a command.");
-        return;
-      }
-      const res = await fetch("/command", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetClientId, command }),
-      });
-      const data = await res.json();
-      logOutput(`📤 Sent '${command}' to ${targetClientId}`);
-    }
-
-    function logOutput(msg) {
+    function pushLog(msg) {
       const ts = new Date().toLocaleTimeString();
-      outputDiv.textContent += `[${ts}] ${msg}\n`;
-      outputDiv.scrollTop = outputDiv.scrollHeight;
+      logEl.textContent += '\\n[' + ts + '] ' + msg;
+      logEl.scrollTop = logEl.scrollHeight;
     }
+
+    // allow the parent dashboard to call pushRemoteLog
+    window.pushRemoteLog = pushLog;
+
+    async function sendCommand(command) {
+      pushLog('Sending command: ' + command + ' ...');
+      try {
+        const res = await fetch('/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetClientId: cid, command })
+        });
+        if (!res.ok) {
+          pushLog('Command send failed: ' + res.status + ' ' + (await res.text()).slice(0,200));
+          return;
+        }
+        pushLog('Command queued successfully.');
+      } catch (err) {
+        pushLog('Network error sending command: ' + err.message);
+      }
+    }
+
+    document.getElementById('btnFetch').addEventListener('click', () => sendCommand('fetch'));
+    document.getElementById('btnUpload').addEventListener('click', () => sendCommand('upload'));
+    document.getElementById('btnClose').addEventListener('click', () => window.close());
   </script>
+</body>
+</html>
+      `);
+      win.document.close();
+    } else {
+      // tab already exists — focus it
+      win.focus();
+    }
+  } catch (e) {
+    console.error('Failed to open device tab', e);
+    alert('Unable to open device tab — popup blocked? Allow popups for this site.');
+  }
+}
+
+// helper utilities
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts){
+  if(!ts) return 'never';
+  const diff = Math.floor((Date.now() - ts)/1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  return Math.floor(diff/3600) + 'h ago';
+}
+function logConsole(msg){
+  console.log('[dashboard]', msg);
+}
+
+// small initial fallback render
+renderAll();
+
+// If server won't push devices on connect, you may request snapshot via WS or an HTTP endpoint.
+// e.g., fetch('/devices_snapshot').then(...). For this dashboard the server should push {type:"devices", devices:{...}}.
+</script>
 </body>
 </html>
