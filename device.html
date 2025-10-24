@@ -13,6 +13,15 @@
     }
     h2 { margin-bottom: 4px; }
     p { margin-top: 0; color: #555; }
+    .status {
+      font-size: 0.9em;
+      padding: 3px 8px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    .online { background: #d1fae5; color: #065f46; }
+    .offline { background: #fee2e2; color: #991b1b; }
     button {
       padding: 8px 12px;
       border-radius: 6px;
@@ -42,7 +51,9 @@
 </head>
 <body>
   <h2 id="devName"></h2>
-  <p>ID: <span id="devId"></span></p>
+  <p>ID: <span id="devId"></span> 
+     <span id="status" class="status offline">Offline</span>
+  </p>
 
   <button class="fetch" id="btnFetch">Fetch</button>
   <button class="upload" id="btnUpload">Upload</button>
@@ -51,28 +62,28 @@
   <pre id="log">Connecting...</pre>
 
   <script>
-    // --- Extract info from URL ---
+    // --- Extract device info from URL ---
     const pathParts = window.location.pathname.split("/");
     const clientId = pathParts[pathParts.length - 1];
-    const params = new URLSearchParams(window.location.search);
-    const deviceName = params.get("name") || clientId;
+    const urlParams = new URLSearchParams(location.search);
+    const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
 
-    // --- Update UI ---
     document.title = deviceName;
     document.getElementById("devName").textContent = deviceName;
     document.getElementById("devId").textContent = clientId;
 
-    // --- Log helper ---
     const logEl = document.getElementById("log");
+    const statusEl = document.getElementById("status");
+
     function pushLog(msg) {
       const ts = new Date().toLocaleTimeString();
       logEl.textContent += `\n[${ts}] ${msg}`;
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // --- Command sender ---
+    // --- Command sending ---
     async function sendCmd(cmd) {
-      pushLog(`Sending ${cmd}...`);
+      pushLog(`📤 Sending "${cmd}"...`);
       try {
         const r = await fetch("/command", {
           method: "POST",
@@ -86,22 +97,34 @@
       }
     }
 
-    // --- Button actions ---
     document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
-    // --- WebSocket for live responses ---
+    // --- WebSocket for live updates ---
     const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
     const ws = new WebSocket(wsProto + location.host);
 
     ws.onopen = () => pushLog("🔌 WebSocket connected");
     ws.onclose = () => pushLog("❌ WebSocket disconnected");
-    ws.onerror = () => pushLog("⚠️ WebSocket error");
+    ws.onerror = (e) => pushLog("⚠️ WebSocket error");
 
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
+
+        if (msg.type === "devices") {
+          // Update online/offline status of this device
+          const d = msg.devices[clientId];
+          if (d && d.online) {
+            statusEl.textContent = "Online";
+            statusEl.className = "status online";
+          } else {
+            statusEl.textContent = "Offline";
+            statusEl.className = "status offline";
+          }
+        }
+
         if (msg.type === "response" && msg.clientId === clientId) {
           pushLog(`📩 Response: ${msg.output}`);
         }
@@ -110,7 +133,6 @@
       }
     };
 
-    // --- Allow dashboard parent to push logs too ---
     window.pushRemoteLog = pushLog;
   </script>
 </body>
