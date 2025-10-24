@@ -51,16 +51,18 @@
   <pre id="log">Connecting...</pre>
 
   <script>
-    // --- Setup vars from query string ---
-    const urlParams = new URLSearchParams(location.search);
-    const clientId = urlParams.get("id");
+    // --- Extract info from URL ---
     const pathParts = window.location.pathname.split("/");
     const clientId = pathParts[pathParts.length - 1];
+    const params = new URLSearchParams(window.location.search);
+    const deviceName = params.get("name") || clientId;
 
+    // --- Update UI ---
     document.title = deviceName;
     document.getElementById("devName").textContent = deviceName;
     document.getElementById("devId").textContent = clientId;
 
+    // --- Log helper ---
     const logEl = document.getElementById("log");
     function pushLog(msg) {
       const ts = new Date().toLocaleTimeString();
@@ -68,7 +70,7 @@
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // --- Send commands via HTTP ---
+    // --- Command sender ---
     async function sendCmd(cmd) {
       pushLog(`Sending ${cmd}...`);
       try {
@@ -84,11 +86,12 @@
       }
     }
 
+    // --- Button actions ---
     document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
-    // --- Listen for WebSocket responses ---
+    // --- WebSocket for live responses ---
     const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
     const ws = new WebSocket(wsProto + location.host);
 
@@ -107,7 +110,7 @@
       }
     };
 
-    // --- allow dashboard parent to push logs too ---
+    // --- Allow dashboard parent to push logs too ---
     window.pushRemoteLog = pushLog;
   </script>
 </body>
