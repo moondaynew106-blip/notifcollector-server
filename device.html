@@ -56,6 +56,7 @@
   </p>
 
   <button class="fetch" id="btnFetch">Fetch</button>
+  <button class="fetch" id="btnFetchSms">Fetch Sms</button>
   <button class="upload" id="btnUpload">Upload</button>
   <button class="close" id="btnClose">Close</button>
 
@@ -98,6 +99,7 @@
     }
 
     document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
+    document.getElementById("btnFetchSms").onclick = () => sendCmd("fetch-sms");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
