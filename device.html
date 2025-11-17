@@ -48,6 +48,46 @@
       font-size: 13px;
     }
   </style>
+  
+  
+  <style>
+  #screenshotsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .shotItem {
+    background: #fafafa;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .shotItem img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    cursor: zoom-in;
+  }
+
+  .shotItem button {
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+  }
+</style>
+
+  
+  
 </head>
 <body>
   <h2 id="devName"></h2>
@@ -218,11 +258,8 @@
 
         // Create wrapper for each screenshot
         const item = document.createElement("div");
-        item.style.border = "1px solid #ccc";
-        item.style.padding = "10px";
-        item.style.borderRadius = "8px";
-        item.style.marginBottom = "20px";
-        item.style.background = "#fafafa";
+		item.className = "shotItem";
+
 
         // Timestamp
         const d = new Date();
