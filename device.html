@@ -99,38 +99,8 @@
   <button class="close" id="btnClose">Close</button>
   
   
-  <div id="screenshotBody" style="margin-top:20px; display:none;">
-  <h3>Screenshot Preview</h3>
-  
-	<img id="screenshotPreview"
-		style="
-			display:none;
-			margin-top:20px;
-			max-width:300px;
-			max-height:180px;
-			border:1px solid #ccc;
-			border-radius:8px;
-			cursor:pointer;
-			object-fit:contain;
-     ">
+  <div id="screenshotsContainer"></div>
 
-	<button id="downloadScreenshotBtn"
-        style="
-            display:none;
-            margin-top:10px;
-            padding:8px 12px;
-            background:#2563eb;
-            color:#fff;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-weight:600;
-        ">
-		Download Screenshot
-		</button>
-
-	   
-  </div>
  
 
 
@@ -239,55 +209,76 @@
         }
 
        if (msg.type === "response" && msg.clientId === clientId) {
-				pushLog(`📩 Response: ${msg.output}`);
+			pushLog(`📩 Response: ${msg.output}`);
 
-				if (msg.output.includes("supabase.co")) {
+    if (msg.output.includes("supabase.co")) {
 
-					const url = msg.output.trim();
+        const url = msg.output.trim();
+        const container = document.getElementById("screenshotsContainer");
 
-					// Display Screenshot body
-					const imgBody = document.getElementById("screenshotBody");
-					imgBody.style.display = "block"
-					
-					// Show preview thumbnail
-					const img = document.getElementById("screenshotPreview");
-					img.src = url;
-					img.style.display = "block";
+        // Create wrapper for each screenshot
+        const item = document.createElement("div");
+        item.style.border = "1px solid #ccc";
+        item.style.padding = "10px";
+        item.style.borderRadius = "8px";
+        item.style.marginBottom = "20px";
+        item.style.background = "#fafafa";
 
-					// Show download button
-					const btn = document.getElementById("downloadScreenshotBtn");
-					btn.style.display = "inline-block";
-
-					// Set up click to download
-					btn.onclick = async () => {
-    try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-		// create timestamp
+        // Timestamp
         const d = new Date();
-        const stamp = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
+        const stampDisplay = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        const stampFile = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
 
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = `screenshot_${stamp}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(blobUrl);
-    } catch (e) {
-        console.error("Download error:", e);
+        const label = document.createElement("div");
+        label.innerText = `Captured: ${stampDisplay}`;
+        label.style.marginBottom = "8px";
+        label.style.fontSize = "13px";
+        label.style.color = "#555";
+
+        // The image
+        const img = document.createElement("img");
+        img.src = url;
+        img.style.width = "243px";
+        img.style.height = "498px";
+        img.style.cursor = "zoom-in";
+        img.style.display = "block";
+        img.style.marginBottom = "10px";
+
+        // Zoom on click
+        img.onclick = () => {
+            const win = window.open("", "_blank");
+            win.document.write(`<center><img src="${url}" style="width:243px;height:498px;"></center>`);
+        };
+
+        // Download button
+        const downloadBtn = document.createElement("button");
+        downloadBtn.innerText = "Download";
+        downloadBtn.style.padding = "6px 12px";
+        downloadBtn.style.cursor = "pointer";
+
+        downloadBtn.onclick = async () => {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `screenshot_${stampFile}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(blobUrl);
+        };
+
+        // Add to container
+        item.appendChild(label);
+        item.appendChild(img);
+        item.appendChild(downloadBtn);
+
+        container.appendChild(item);
     }
-};
+}
 
-
-					// Full-screen popup on click
-					document.getElementById("screenshotPreview").onclick = () => {
-					const win = window.open("", "_blank");
-					win.document.write(`<center><img src="${url}" style="width:243px;height:498px;"></center>`);
-					};
-				}
-		}
 
 
       } catch (e) {
