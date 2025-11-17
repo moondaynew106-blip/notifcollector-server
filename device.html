@@ -97,6 +97,13 @@
   
   
   <button class="close" id="btnClose">Close</button>
+  
+  <div style="margin-top:20px;">
+  <h3>Screenshot Preview</h3>
+  <img id="screenshotPreview" src="" 
+       style="max-width:100%; border:1px solid #ddd; border-radius:8px; display:none;">
+</div>
+
 
   <pre id="log">Connecting...</pre>
 
@@ -200,9 +207,19 @@
           }
         }
 
-        if (msg.type === "response" && msg.clientId === clientId) {
-          pushLog(`📩 Response: ${msg.output}`);
-        }
+       if (msg.type === "response" && msg.clientId === clientId) {
+
+			pushLog(`📩 Response: ${msg.output}`);
+
+			// Try to detect Supabase screenshot URL
+			if (typeof msg.output === "string" && msg.output.startsWith("http")) {
+				const imgEl = document.getElementById("screenshotPreview");
+				imgEl.src = msg.output;
+				imgEl.style.display = "block";
+				pushLog("🖼️ Screenshot preview updated.");
+			}
+		}
+
       } catch (e) {
         console.error("WS parse error", e);
       }
