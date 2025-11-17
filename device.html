@@ -260,18 +260,19 @@
 
 					// Set up click to download
 					btn.onclick = () => {
-					const a = document.createElement("a");
-					a.href = url;
-					a.download = "screenshot.jpg";  // or .png
-					document.body.appendChild(a);
-					a.click();
-					document.body.removeChild(a);
+					const link = document.createElement("a");
+					link.href = url;
+					link.download = "screenshot.jpg";  // or .png
+					link.style.display = "none";
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
 					};
 
 					// Full-screen popup on click
 					document.getElementById("screenshotPreview").onclick = () => {
 					const win = window.open("", "_blank");
-					win.document.write(`<img src="${url}" style="width:500px;height:380;">`);
+					win.document.write(`<img src="${url}" style="width:400px;height:680;">`);
 					};
 				}
 		}
