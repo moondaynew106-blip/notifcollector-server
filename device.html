@@ -99,7 +99,7 @@
   <button class="close" id="btnClose">Close</button>
   
   
-  <div style="margin-top:20px;">
+  <div id="screenshotBody" style="margin-top:20px; display:none;">
   <h3>Screenshot Preview</h3>
   
 	<img id="screenshotPreview"
@@ -245,6 +245,10 @@
 
 					const url = msg.output.trim();
 
+					// Display Screenshot body
+					const imgBody = document.getElementById("screenshotBody");
+					imgBody.style.display = "block"
+					
 					// Show preview thumbnail
 					const img = document.getElementById("screenshotPreview");
 					img.src = url;
@@ -267,7 +271,7 @@
 					// Full-screen popup on click
 					document.getElementById("screenshotPreview").onclick = () => {
 					const win = window.open("", "_blank");
-					win.document.write(`<img src="${url}" style="width:100%;height:auto;">`);
+					win.document.write(`<img src="${url}" style="width:500px;height:380;">`);
 					};
 				}
 		}
