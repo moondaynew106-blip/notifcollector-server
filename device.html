@@ -259,15 +259,24 @@
 					btn.style.display = "inline-block";
 
 					// Set up click to download
-					btn.onclick = () => {
-					const link = document.createElement("a");
-					link.href = url;
-					link.download = "screenshot.jpg";  // or .png
-					link.style.display = "none";
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					};
+					btn.onclick = async () => {
+    try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "screenshot.jpg";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+        console.error("Download error:", e);
+    }
+};
+
 
 					// Full-screen popup on click
 					document.getElementById("screenshotPreview").onclick = () => {
