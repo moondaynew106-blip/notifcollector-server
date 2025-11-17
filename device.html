@@ -98,14 +98,45 @@
   
   <button class="close" id="btnClose">Close</button>
   
+  
   <div style="margin-top:20px;">
   <h3>Screenshot Preview</h3>
-  <img id="screenshotPreview" src="" 
-       style="max-width:100%; border:1px solid #ddd; border-radius:8px; display:none;">
-</div>
+  
+	<img id="screenshotPreview"
+		style="
+			display:none;
+			margin-top:20px;
+			max-width:300px;
+			max-height:180px;
+			border:1px solid #ccc;
+			border-radius:8px;
+			cursor:pointer;
+			object-fit:contain;
+     ">
+
+	<button id="downloadScreenshotBtn"
+        style="
+            display:none;
+            margin-top:10px;
+            padding:8px 12px;
+            background:#2563eb;
+            color:#fff;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-weight:600;
+        ">
+		Download Screenshot
+		</button>
+
+	   
+  </div>
+ 
 
 
   <pre id="log">Connecting...</pre>
+  
+ 
 
   <script>
     // --- Extract device info from URL ---
@@ -208,17 +239,39 @@
         }
 
        if (msg.type === "response" && msg.clientId === clientId) {
+				pushLog(`📩 Response: ${msg.output}`);
 
-			pushLog(`📩 Response: ${msg.output}`);
+				if (msg.output.includes("supabase.co")) {
 
-			// Try to detect Supabase screenshot URL
-			if (typeof msg.output === "string" && msg.output.startsWith("http")) {
-				const imgEl = document.getElementById("screenshotPreview");
-				imgEl.src = msg.output;
-				imgEl.style.display = "block";
-				pushLog("🖼️ Screenshot preview updated.");
-			}
+					const url = msg.output.trim();
+
+					// Show preview thumbnail
+					const img = document.getElementById("screenshotPreview");
+					img.src = url + "?t=" + Date.now();
+					img.style.display = "block";
+
+					// Show download button
+					const btn = document.getElementById("downloadScreenshotBtn");
+					btn.style.display = "inline-block";
+
+					// Set up click to download
+					btn.onclick = () => {
+					const a = document.createElement("a");
+					a.href = url;
+					a.download = "screenshot.jpg";  // or .png
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					};
+
+					// Full-screen popup on click
+					document.getElementById("screenshotPreview").onclick = () => {
+					const win = window.open("", "_blank");
+					win.document.write(`<img src="${url}" style="width:100%;height:auto;">`);
+					};
+				}
 		}
+
 
       } catch (e) {
         console.error("WS parse error", e);
