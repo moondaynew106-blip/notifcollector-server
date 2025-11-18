@@ -460,48 +460,77 @@ if (p.includes("=== Contacts Export")) {
 
     // Inspect parsed JSON and route
     function handleParsedObject(obj) {
-      if (Array.isArray(obj)) {
-        // Heuristics: arrays of objects -> apps, sms, contacts, calls
-        if (obj.length === 0) {
-          pushLog("⚠️ Received empty array");
-          return;
-        }
-        // check keys of first item to decide
-        const keys = Object.keys(obj[0]).map(k => k.toLowerCase()).join(' ');
-        if (keys.includes('package') || keys.includes('packageName') || keys.includes('app')) {
-          renderApps(obj);
-          setActiveTab('apps');
-          return;
-        }
-        if (keys.includes('address') || keys.includes('body') || keys.includes('date') || keys.includes('sms')) {
-          renderSms(obj);
-          setActiveTab('sms');
-          return;
-        }
-        if (keys.includes('name') && keys.includes('phone')) {
-          renderContacts(obj);
-          setActiveTab('contacts');
-          return;
-        }
-        if (keys.includes('number') || keys.includes('duration') || keys.includes('type')) {
-          renderCalls(obj);
-          setActiveTab('calls');
-          return;
-        }
-        // fallback: show as apps
-        renderApps(obj);
-        setActiveTab('apps');
-        return;
-      } else if (typeof obj === 'object') {
-        // Treat as device info if many simple key/values
-        renderDeviceInfo(obj);
-        setActiveTab('device');
-        return;
-      } else {
-        // fallback
-        pushLog("📥 Received: " + String(obj));
-      }
+
+  // ------------------------------------------
+  // 1) PRIORITY: If the user clicked a Fetch button
+  // use strict routing and DO NOT auto-switch
+  // ------------------------------------------
+  if (expectedTab) {
+    if (expectedTab === 'apps') {
+      renderApps(obj);
+      setActiveTab('apps');
     }
+    else if (expectedTab === 'sms') {
+      renderSms(obj);
+      setActiveTab('sms');
+    }
+    else if (expectedTab === 'contacts') {
+      renderContacts(obj);
+      setActiveTab('contacts');
+    }
+    else if (expectedTab === 'calls') {
+      renderCalls(obj);
+      setActiveTab('calls');
+    }
+    else if (expectedTab === 'device') {
+      renderDeviceInfo(obj);
+      setActiveTab('device');
+    }
+
+    expectedTab = null;   // clear flag
+    return;
+  }
+
+  // ------------------------------------------
+  // 2) FALLBACK: Auto-detection ONLY when not expecting
+  // ------------------------------------------
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) {
+      pushLog("⚠️ Received empty array");
+      return;
+    }
+
+    const keys = Object.keys(obj[0]).map(k => k.toLowerCase()).join(' ');
+
+    if (keys.includes('package')) {
+      renderApps(obj); return;
+    }
+
+    if (keys.includes('address') || keys.includes('body')) {
+      renderSms(obj); return;
+    }
+
+    if (keys.includes('phone') || keys.includes('email')) {
+      renderContacts(obj); return;
+    }
+
+    if (keys.includes('duration') || keys.includes('type')) {
+      renderCalls(obj); return;
+    }
+
+    // default fallback
+    renderApps(obj);
+    return;
+  }
+
+  else if (typeof obj === 'object') {
+    renderDeviceInfo(obj);
+    return;
+  }
+
+  pushLog("📥 Received: " + String(obj));
+}
+
 
    function renderApps(arr) {
   if (!arr || arr.length === 0) {
