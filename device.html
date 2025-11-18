@@ -741,16 +741,17 @@ if (p.includes("=== Contacts Export")) {
     const li = document.createElement("li");
     li.className = "item";
 
-    // Use the first phone for display
-    const firstPhone = data.phones[0] || "";
+    // Join all phones into one string
+    const phonesStr = data.phones.length ? data.phones.join(", ") : "";
+
     const emailsHtml = data.emails.length
       ? data.emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
       : "";
 
-    // Main line: show name (phone) like Calls tab
+    // Main line: show name (phone1, phone2, ...) like Calls tab
     const mainLine = name && name !== "Unknown"
-      ? firstPhone ? `${name} (${firstPhone})` : name
-      : firstPhone || "Unknown";
+      ? phonesStr ? `${name} (${phonesStr})` : name
+      : phonesStr || "Unknown";
 
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
@@ -767,6 +768,7 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
+
 
 
 		
