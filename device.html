@@ -706,56 +706,59 @@ if (p.includes("=== Contacts Export")) {
 
   arr.forEach(item => {
     let name = "Unknown";
-    let phone = null;
-    let email = null;
+    let phones = [];
+    let emails = [];
 
     if (typeof item === "object") {
       name = item.name || "Unknown";
-      phone = item.phone || item.number || null;
-      email = item.email || null;
+      if (item.phone) phones.push(item.phone);
+      if (item.number) phones.push(item.number);
+      if (item.phones && Array.isArray(item.phones)) phones.push(...item.phones);
+      if (item.email) emails.push(item.email);
     } else {
       const raw = String(item);
-      const nMatch = raw.match(/Name[:\s]*"?(.+?)"?(?:\n|$)/i);
-      const pMatch = raw.match(/Phone[:\s]*"?(.+?)"?(?:\n|$)/i);
-      const eMatch = raw.match(/Email[:\s]*"?(.+?)"?(?:\n|$)/i);
-
+      
+      // Extract name
+      const nMatch = raw.match(/Name[:\s]*"?(.+?)"?(\n|$)/i);
       if (nMatch) name = nMatch[1].trim();
-      if (pMatch) phone = pMatch[1].trim();
-      if (eMatch) email = eMatch[1].trim();
+
+      // Extract Phones (plural) or Phone (singular)
+      const phoneLines = raw.match(/Phones?:\s*([\s\S]*)/i);
+      if (phoneLines) {
+        // Split by lines and take numbers that start with optional "-" or space
+        const nums = phoneLines[1].split("\n").map(l => l.replace(/^-?\s*/, "").trim()).filter(l => l);
+        phones.push(...nums);
+      }
+
+      // Extract email if present
+      const eMatch = raw.match(/Email[:\s]*"?(.+?)"?(\n|$)/i);
+      if (eMatch) emails.push(eMatch[1].trim());
     }
 
-    // Ensure at least one phone exists
-    if (!phone && item.number) phone = item.number;
+    if (!contactsMap.has(name)) contactsMap.set(name, { phones: [], emails: [] });
 
-    if (!contactsMap.has(name)) {
-      contactsMap.set(name, { phones: [], emails: [] });
-    }
-    if (phone && !contactsMap.get(name).phones.includes(phone)) {
-      contactsMap.get(name).phones.push(phone);
-    }
-    if (email && !contactsMap.get(name).emails.includes(email)) {
-      contactsMap.get(name).emails.push(email);
-    }
+    // Add phones/emails uniquely
+    phones.forEach(p => {
+      if (p && !contactsMap.get(name).phones.includes(p)) contactsMap.get(name).phones.push(p);
+    });
+    emails.forEach(e => {
+      if (e && !contactsMap.get(name).emails.includes(e)) contactsMap.get(name).emails.push(e);
+    });
   });
 
+  // Render contacts
   [...contactsMap.entries()].forEach(([name, data], index) => {
     const li = document.createElement("li");
     li.className = "item";
 
-    // If phones array is empty, fallback to Unknown
     const phonesStr = data.phones.length ? data.phones.join(", ") : "";
-
     const emailsHtml = data.emails.length
       ? data.emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
       : "";
 
-    // Always show (number) like Calls tab
-    let mainLine;
-    if (name && name !== "Unknown") {
-      mainLine = phonesStr ? `${name} (${phonesStr})` : name;
-    } else {
-      mainLine = phonesStr || "Unknown";
-    }
+    const mainLine = name && name !== "Unknown"
+      ? phonesStr ? `${name} (${phonesStr})` : name
+      : phonesStr || "Unknown";
 
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
@@ -770,6 +773,7 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
+
 
 
 
