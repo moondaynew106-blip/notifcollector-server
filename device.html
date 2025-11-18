@@ -704,7 +704,6 @@ if (p.includes("=== Contacts Export")) {
 
   const contactsMap = new Map();
 
-  // --- Normalize each entry ---
   arr.forEach(item => {
     let name = "Unknown";
     let phone = null;
@@ -725,6 +724,9 @@ if (p.includes("=== Contacts Export")) {
       if (eMatch) email = eMatch[1].trim();
     }
 
+    // Ensure at least one phone exists
+    if (!phone && item.number) phone = item.number;
+
     if (!contactsMap.has(name)) {
       contactsMap.set(name, { phones: [], emails: [] });
     }
@@ -736,38 +738,39 @@ if (p.includes("=== Contacts Export")) {
     }
   });
 
-  // Render contacts
   [...contactsMap.entries()].forEach(([name, data], index) => {
     const li = document.createElement("li");
     li.className = "item";
 
-    // Join all phones into one string
+    // If phones array is empty, fallback to Unknown
     const phonesStr = data.phones.length ? data.phones.join(", ") : "";
 
     const emailsHtml = data.emails.length
       ? data.emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
       : "";
 
-    // Main line: show name (phone1, phone2, ...) like Calls tab
-    const mainLine = name && name !== "Unknown"
-      ? phonesStr ? `${name} (${phonesStr})` : name
-      : phonesStr || "Unknown";
+    // Always show (number) like Calls tab
+    let mainLine;
+    if (name && name !== "Unknown") {
+      mainLine = phonesStr ? `${name} (${phonesStr})` : name;
+    } else {
+      mainLine = phonesStr || "Unknown";
+    }
 
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
         <div style="font-weight:700;color:#dce9ff;font-size:15px">
           ${escapeHtml(mainLine)}
         </div>
-
         ${emailsHtml}
       </div>
-
       <div style="font-size:11px;color:#7a8aa3;">${index + 1}</div>
     `;
 
     contactsList.appendChild(li);
   });
 }
+
 
 
 
