@@ -691,7 +691,8 @@ if (p.includes("=== Contacts Export")) {
   });
 }
 
-    function renderContacts(arr) {
+		
+		function renderContacts(arr) {
   if (!arr || arr.length === 0) {
     contactsLoading.textContent = "No contacts found";
     contactsList.innerHTML = "";
@@ -745,8 +746,9 @@ if (p.includes("=== Contacts Export")) {
     const li = document.createElement("li");
     li.className = "item";
 
+    // Combine phones into one line if multiple
     const phonesHtml = data.phones.length
-      ? data.phones.map(p => `<div class="muted" style="font-size:12px">📞 ${escapeHtml(p)}</div>`).join("")
+      ? data.phones.map(p => escapeHtml(p)).join(", ")
       : "";
 
     const emailsHtml = data.emails.length
@@ -757,10 +759,10 @@ if (p.includes("=== Contacts Export")) {
       <div style="display:flex;flex-direction:column;gap:4px;">
         
         <div style="font-weight:700;color:#dce9ff;font-size:15px">
-          ${escapeHtml(name)}
+          ${escapeHtml(name && name !== "Unknown" ? name : phonesHtml)}
+          ${name && name !== "Unknown" && phonesHtml ? `(${phonesHtml})` : ""}
         </div>
 
-        ${phonesHtml}
         ${emailsHtml}
 
       </div>
@@ -771,6 +773,9 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
+
+		
+		
 
     function renderCalls(arr) {
   if (!arr || arr.length === 0) {
