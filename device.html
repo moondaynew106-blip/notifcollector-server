@@ -388,11 +388,11 @@
     function handleFullPayload(payload) {
       // payload might include log text + a JSON snippet; attempt to find the JSON start
       // trim known leading/trailing whitespace
-      //const p = payload.trim();
+      const p = payload.trim();
 	  //const cleaned = p.replace(/^\[[^\]]*?\]\s*\n?/g, "").trim();
 		// Remove only the first bracket header like [DeviceName chunk ...]
-    const cleaned = payload.replace(/^\[[^\]]*?\]\s*\n?/, "").trim();
-    const p = cleaned;
+    //const cleaned = payload.replace(/^\[[^\]]*?\]\s*\n?/, "").trim();
+    //const p = cleaned;
 	  
 	  
 	  // Detect Contacts Export (plain text, not JSON)
