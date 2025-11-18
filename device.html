@@ -710,16 +710,12 @@ if (p.includes("=== Contacts Export")) {
     let phone = null;
     let email = null;
 
-    // Case 1 — JSON object
     if (typeof item === "object") {
       name = item.name || "Unknown";
       phone = item.phone || item.number || null;
       email = item.email || null;
-
-    // Case 2 — Raw text
     } else {
       const raw = String(item);
-
       const nMatch = raw.match(/Name[:\s]*"?(.+?)"?(?:\n|$)/i);
       const pMatch = raw.match(/Phone[:\s]*"?(.+?)"?(?:\n|$)/i);
       const eMatch = raw.match(/Email[:\s]*"?(.+?)"?(?:\n|$)/i);
@@ -729,7 +725,6 @@ if (p.includes("=== Contacts Export")) {
       if (eMatch) email = eMatch[1].trim();
     }
 
-    // Add to grouped map
     if (!contactsMap.has(name)) {
       contactsMap.set(name, { phones: [], emails: [] });
     }
@@ -746,25 +741,24 @@ if (p.includes("=== Contacts Export")) {
     const li = document.createElement("li");
     li.className = "item";
 
-    // Combine phones into one line if multiple
-    const phonesHtml = data.phones.length
-      ? data.phones.map(p => escapeHtml(p)).join(", ")
-      : "";
-
+    // Use the first phone for display
+    const firstPhone = data.phones[0] || "";
     const emailsHtml = data.emails.length
       ? data.emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
       : "";
 
+    // Main line: show name (phone) like Calls tab
+    const mainLine = name && name !== "Unknown"
+      ? firstPhone ? `${name} (${firstPhone})` : name
+      : firstPhone || "Unknown";
+
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
-        
         <div style="font-weight:700;color:#dce9ff;font-size:15px">
-          ${escapeHtml(name && name !== "Unknown" ? name : phonesHtml)}
-          ${name && name !== "Unknown" && phonesHtml ? `(${phonesHtml})` : ""}
+          ${escapeHtml(mainLine)}
         </div>
 
         ${emailsHtml}
-
       </div>
 
       <div style="font-size:11px;color:#7a8aa3;">${index + 1}</div>
@@ -773,6 +767,7 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
+
 
 		
 		
