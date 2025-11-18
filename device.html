@@ -285,15 +285,15 @@
         const cmd = map[id];
         // special: set tab and loading states for data fetches
         if (cmd === 'fetch-apps') {
-          setActiveTab('apps'); appsLoading.textContent = 'Loading apps...'; appsList.innerHTML = '';
+          expectedTab = "apps"; setActiveTab('apps'); appsLoading.textContent = 'Loading apps...'; appsList.innerHTML = '';
         } else if (cmd === 'fetch-sms') {
-          setActiveTab('sms'); smsLoading.textContent = 'Loading SMS...'; smsList.innerHTML = '';
+          expectedTab = "sms"; setActiveTab('sms'); smsLoading.textContent = 'Loading SMS...'; smsList.innerHTML = '';
         } else if (cmd === 'fetch-contact') {
-          setActiveTab('contacts'); contactsLoading.textContent = 'Loading contacts...'; contactsList.innerHTML = '';
+          expectedTab = "contacts"; setActiveTab('contacts'); contactsLoading.textContent = 'Loading contacts...'; contactsList.innerHTML = '';
         } else if (cmd === 'fetch-logs') {
           expectedTab = "calls"; setActiveTab('calls'); callsLoading.textContent = 'Loading calls...'; callsList.innerHTML = '';
         } else if (cmd === 'fetch-device') {
-          setActiveTab('device'); deviceLoading.textContent = 'Loading device info...'; deviceTable.innerHTML = '';
+          expectedTab = "device"; setActiveTab('device'); deviceLoading.textContent = 'Loading device info...'; deviceTable.innerHTML = '';
         } else if (cmd === 'fetch-screenshot') {
           // switch to screenshots (right panel message)
           setActiveTab('screenshots');
