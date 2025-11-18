@@ -702,58 +702,46 @@ if (p.includes("=== Contacts Export")) {
   contactsLoading.textContent = `Showing ${arr.length} contacts`;
   contactsList.innerHTML = "";
 
-  const contactsMap = new Map();
-
-  arr.forEach(item => {
+  arr.forEach((item, index) => {
     let name = "Unknown";
     let phones = [];
     let emails = [];
 
+    // --- raw text object from Android ---
     if (typeof item === "object") {
       name = item.name || "Unknown";
-      if (item.phone) phones.push(item.phone);
-      if (item.number) phones.push(item.number);
-      if (item.phones && Array.isArray(item.phones)) phones.push(...item.phones);
-      if (item.email) emails.push(item.email);
+      phones = item.phones || [];
+      emails = item.emails || [];
     } else {
-      const raw = String(item);
-      
-      // Extract name
-      const nMatch = raw.match(/Name[:\s]*"?(.+?)"?(\n|$)/i);
-      if (nMatch) name = nMatch[1].trim();
+      const lines = String(item).split("\n").map(l => l.trim());
+      let section = null; // tracks if we're in Phones or Emails block
 
-      // Extract Phones (plural) or Phone (singular)
-      const phoneLines = raw.match(/Phones?:\s*([\s\S]*)/i);
-      if (phoneLines) {
-        // Split by lines and take numbers that start with optional "-" or space
-        const nums = phoneLines[1].split("\n").map(l => l.replace(/^-?\s*/, "").trim()).filter(l => l);
-        phones.push(...nums);
-      }
+      lines.forEach(line => {
+        if (!line) return;
 
-      // Extract email if present
-      const eMatch = raw.match(/Email[:\s]*"?(.+?)"?(\n|$)/i);
-      if (eMatch) emails.push(eMatch[1].trim());
+        if (line.startsWith("Name:")) {
+          name = line.replace("Name:", "").trim();
+          section = null;
+        } else if (line.startsWith("Phones:")) {
+          section = "phones";
+        } else if (line.startsWith("Emails:")) {
+          section = "emails";
+        } else if (line.startsWith("-") && section === "phones") {
+          phones.push(line.replace(/^-/, "").trim());
+        } else if (line.startsWith("-") && section === "emails") {
+          emails.push(line.replace(/^-/, "").trim());
+        } else if (line.startsWith("----------------")) {
+          section = null;
+        }
+      });
     }
 
-    if (!contactsMap.has(name)) contactsMap.set(name, { phones: [], emails: [] });
-
-    // Add phones/emails uniquely
-    phones.forEach(p => {
-      if (p && !contactsMap.get(name).phones.includes(p)) contactsMap.get(name).phones.push(p);
-    });
-    emails.forEach(e => {
-      if (e && !contactsMap.get(name).emails.includes(e)) contactsMap.get(name).emails.push(e);
-    });
-  });
-
-  // Render contacts
-  [...contactsMap.entries()].forEach(([name, data], index) => {
     const li = document.createElement("li");
     li.className = "item";
 
-    const phonesStr = data.phones.length ? data.phones.join(", ") : "";
-    const emailsHtml = data.emails.length
-      ? data.emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
+    const phonesStr = phones.length ? phones.join(", ") : "";
+    const emailsHtml = emails.length
+      ? emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
       : "";
 
     const mainLine = name && name !== "Unknown"
@@ -773,7 +761,6 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
-
 
 
 
