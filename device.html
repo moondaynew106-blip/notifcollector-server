@@ -472,9 +472,9 @@ if (p.includes("=== Contacts Export")) {
 
     if (current.name || current.phone) contacts.push(current);
 
-	 const contacts = parseAndroidContactsExport(p);
+	 const contac = parseAndroidContactsExport(p);
 		
-    renderContacts(contacts);
+    renderContacts(contac);
     setActiveTab("contacts");
     return;
 }
