@@ -499,8 +499,7 @@ if (p.includes("=== Contacts Export")) {
         // fallback
         pushLog("📥 Received: " + String(obj));
       }
-    },
-	
+    }
 
    function renderApps(arr) {
   if (!arr || arr.length === 0) {
@@ -570,7 +569,6 @@ if (p.includes("=== Contacts Export")) {
     appsList.appendChild(li);
   });
 }
-
 
 
     function renderSms(arr) {
@@ -756,10 +754,10 @@ if (p.includes("=== Contacts Export")) {
     let dateStr = "";
     let duration = 0;
 
-    // ---- CASE 1: JSON object ----
+    // ---- CASE 1 — JSON object ----
     if (typeof item === "object") {
-      name = item.name || "Unknown";
-      number = item.number || item.phone || "Unknown";
+      name = item.name || "";
+      number = item.number || "Unknown";
       type = item.type || "unknown";
       duration = item.duration || 0;
 
@@ -768,48 +766,64 @@ if (p.includes("=== Contacts Export")) {
         dateStr = d.toLocaleString();
       }
 
-    // ---- CASE 2: Raw text ----
+    // ---- CASE 2 — Raw text ----
     } else {
       const raw = String(item);
 
-      const nm = raw.match(/Name:\s*(.*)/i);
-      if (nm) name = nm[1].trim();
+      const nameMatch = raw.match(/name[:,]?\s*"?(.*?)"?(,|$)/i);
+      const numberMatch = raw.match(/number[:,]?\s*"?(.*?)"?(,|$)/i);
+      const typeMatch = raw.match(/type[:,]?\s*"?(.*?)"?(,|$)/i);
+      const dateMatch = raw.match(/date[:,]?\s*(\d+)/i);
+      const durMatch = raw.match(/duration[:,]?\s*(\d+)/i);
 
-      const num = raw.match(/Number:\s*(.*)/i);
-      if (num) number = num[1].trim();
-
-      const tp = raw.match(/Type:\s*(.*)/i);
-      if (tp) type = tp[1].trim();
-
-      const dt = raw.match(/Date:\s*(.*)/i);
-      if (dt) dateStr = dt[1].trim();
-
-      const dr = raw.match(/Duration:\s*(.*)/i);
-      if (dr) duration = dr[1].trim();
+      if (nameMatch) name = nameMatch[1].trim();
+      if (numberMatch) number = numberMatch[1].trim();
+      if (typeMatch) type = typeMatch[1].trim();
+      if (dateMatch) {
+        const d = new Date(Number(dateMatch[1]));
+        dateStr = d.toLocaleString();
+      }
+      if (durMatch) duration = Number(durMatch[1]);
     }
+
+    // Color code based on call type
+    const color = {
+      incoming: "#6cd46c",
+      outgoing: "#8ab6ff",
+      missed: "#ff6e6e"
+    }[type] || "#d0d0d0";
 
     const li = document.createElement("li");
     li.className = "item";
-    li.style.borderLeft = "4px solid #4fa3ff";
+    li.style.borderLeft = `4px solid ${color}`;
 
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
-        <div style="font-weight:700;color:#dce9ff;font-size:15px">
-          ${escapeHtml(name)} (${escapeHtml(number)})
+        
+        <div style="font-weight:700;color:#dce9ff;">
+          ${escapeHtml(name || number)}
         </div>
 
-        <div class="muted" style="font-size:12px">📞 Type: ${escapeHtml(type)}</div>
-        <div class="muted" style="font-size:12px">⏱ Duration: ${duration}s</div>
-        <div class="muted" style="font-size:12px">📅 ${escapeHtml(dateStr)}</div>
+        <div style="font-size:12px;color:${color}">
+          ${type.toUpperCase()}
+        </div>
+
+        <div style="font-size:12px;color:#9cb3c7;">
+          ${escapeHtml(dateStr)}
+        </div>
+
+        <div style="font-size:12px;color:#b5c7d8;">
+          Duration: ${duration}s
+        </div>
+
       </div>
 
-      <div style="font-size:11px;color:#7a8aa3">${index + 1}</div>
+      <div style="font-size:11px;color:#7a8aa3;">${index + 1}</div>
     `;
 
     callsList.appendChild(li);
   });
 }
-
 
 
     function renderDeviceInfo(obj) {
