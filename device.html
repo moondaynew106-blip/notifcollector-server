@@ -383,6 +383,51 @@
       if (!s) return '';
       return s.length > n ? s.slice(0,n) + '…' : s;
     }
+	
+	
+	
+	
+	function parseAndroidContactsExport(payload) {
+  const contacts = [];
+  const lines = payload.split("\n").map(l => l.trim());
+  let current = { name: "Unknown", phones: [], emails: [] };
+  let section = null;
+
+  lines.forEach(line => {
+    if (!line) return;
+
+    if (line.startsWith("Name:")) {
+      if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
+        contacts.push(current);
+        current = { name: "Unknown", phones: [], emails: [] };
+      }
+      current.name = line.replace("Name:", "").trim();
+      section = null;
+    } else if (line.startsWith("Phones:")) {
+      section = "phones";
+    } else if (line.startsWith("Emails:")) {
+      section = "emails";
+    } else if (line.startsWith("-") && section === "phones") {
+      current.phones.push(line.replace(/^-/, "").trim());
+    } else if (line.startsWith("-") && section === "emails") {
+      current.emails.push(line.replace(/^-/, "").trim());
+    } else if (line.startsWith("----------------")) {
+      section = null;
+    }
+  });
+
+  // push last contact
+  if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
+    contacts.push(current);
+  }
+
+  return contacts;
+}
+
+	
+	
+	
+	
 
     // --- payload processing: try to detect JSON arrays/objects and route to correct tab ---
     function handleFullPayload(payload) {
@@ -427,6 +472,8 @@ if (p.includes("=== Contacts Export")) {
 
     if (current.name || current.phone) contacts.push(current);
 
+	 const contacts = parseAndroidContactsExport(p);
+		
     renderContacts(contacts);
     setActiveTab("contacts");
     return;
