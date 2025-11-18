@@ -396,33 +396,55 @@
   lines.forEach(line => {
     if (!line) return;
 
+    // 🚫 Skip separator lines completely
+    if (line.startsWith("===")) return;
+    if (line.startsWith("Device:")) return;
+    if (line.startsWith("Total:")) return;
+    if (line.startsWith("----------------")) return;
+
     if (line.startsWith("Name:")) {
+      // If previous contact has data, push it
       if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
         contacts.push(current);
-        current = { name: "Unknown", phones: [], emails: [] };
       }
-      current.name = line.replace("Name:", "").trim();
+      current = { name: line.replace("Name:", "").trim(), phones: [], emails: [] };
       section = null;
-    } else if (line.startsWith("Phones:")) {
+      return;
+    }
+
+    if (line.startsWith("Phones:")) {
       section = "phones";
-    } else if (line.startsWith("Emails:")) {
+      return;
+    }
+
+    if (line.startsWith("Emails:")) {
       section = "emails";
-    } else if (line.startsWith("-") && section === "phones") {
-      current.phones.push(line.replace(/^-/, "").trim());
-    } else if (line.startsWith("-") && section === "emails") {
-      current.emails.push(line.replace(/^-/, "").trim());
-    } else if (line.startsWith("----------------")) {
-      section = null;
+      return;
+    }
+
+    if (line.startsWith("-") && section === "phones") {
+      const phone = line.replace(/^-/, "").trim();
+      if (phone && phone !== "-------------------------") {
+        current.phones.push(phone);
+      }
+      return;
+    }
+
+    if (line.startsWith("-") && section === "emails") {
+      const mail = line.replace(/^-/, "").trim();
+      current.emails.push(mail);
+      return;
     }
   });
 
-  // push last contact
+  // Push last one
   if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
     contacts.push(current);
   }
 
   return contacts;
 }
+
 
 	
 	
