@@ -437,7 +437,13 @@ function downloadVCFFile(filename, content) {
   URL.revokeObjectURL(url);
 }
 
-	
+
+
+function fixRawSmsDate(str) {
+  const d = new Date(str + " UTC");
+  return d.toLocaleString();
+}
+
 	
 	
 	
@@ -770,7 +776,10 @@ if (p.includes("=== Contacts Export")) {
 
       // Extract date
       const dt = raw.match(/Date:\s*(.*)/i);
-      if (dt) dateStr = dt[1].trim();
+	  if (dt) {
+		const rawDate = dt[1].trim();
+		dateStr = fixRawSmsDate(rawDate);
+	  }	
 
       // Extract message body
       const msg = raw.match(/Message:\s*([\s\S]*)/i);
@@ -903,9 +912,10 @@ if (p.includes("=== Contacts Export")) {
       if (numberMatch) number = numberMatch[1].trim();
       if (typeMatch) type = typeMatch[1].trim();
       if (dateMatch) {
-        const d = new Date(Number(dateMatch[1]));
-        dateStr = d.toLocaleString();
-      }
+		const rawDate = dateMatch[1].trim();
+		dateStr = fixRawDate(rawDate);
+	  }
+
       if (durMatch) duration = Number(durMatch[1]);
     }
 
