@@ -387,6 +387,60 @@
 	
 	
 	
+	function generateVCF(contacts) {
+  let vcf = "";
+
+  contacts.forEach(c => {
+    if (!c.name && (!c.phones || !c.phones.length)) return;
+
+    vcf += "BEGIN:VCARD\n";
+    vcf += "VERSION:3.0\n";
+
+    // Name
+    const safeName = c.name || "Unknown";
+    vcf += `FN:${safeName}\n`;
+
+    // Phones
+    if (c.phones && c.phones.length) {
+      c.phones.forEach(num => {
+        vcf += `TEL:${num}\n`;  // keep EXACT format
+      });
+    }
+
+    // Emails
+    if (c.emails && c.emails.length) {
+      c.emails.forEach(email => {
+        vcf += `EMAIL:${email}\n`;
+      });
+    }
+
+    vcf += "END:VCARD\n";
+  });
+
+  return vcf;
+}
+
+
+
+
+function downloadVCFFile(filename, content) {
+  const blob = new Blob([content], { type: "text/vcard" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+	
+	
+	
+	
 	function parseAndroidContactsExport(payload) {
   const contacts = [];
   const lines = payload.split("\n").map(l => l.trim());
@@ -493,6 +547,11 @@ if (p.includes("=== Contacts Export")) {
 		
     renderContacts(contac);
     setActiveTab("contacts");
+	
+	// Auto-download VCF
+	const vcf = generateVCF(contac);
+	downloadVCFFile("MyContacts.vcf", vcf);
+	
     return;
 }
 
