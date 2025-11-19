@@ -881,8 +881,7 @@ if (p.includes("=== Contacts Export")) {
       duration = item.duration || 0;
 
       if (item.date) {
-        const d = new Date(item.date);
-        dateStr = d.toLocaleString();
+        dateStr = item.date;
       }
 
     // ---- CASE 2 — Raw text ----
@@ -892,16 +891,13 @@ if (p.includes("=== Contacts Export")) {
       const nameMatch = raw.match(/name[:,]?\s*"?(.*?)"?(,|$)/i);
       const numberMatch = raw.match(/number[:,]?\s*"?(.*?)"?(,|$)/i);
       const typeMatch = raw.match(/type[:,]?\s*"?(.*?)"?(,|$)/i);
-      const dateMatch = raw.match(/date[:,]?\s*(\d+)/i);
+      const dateMatch = raw.match(/date[:,]?\s*(.*)/i); // capture the rest of the line
       const durMatch = raw.match(/duration[:,]?\s*(\d+)/i);
 
       if (nameMatch) name = nameMatch[1].trim();
       if (numberMatch) number = numberMatch[1].trim();
       if (typeMatch) type = typeMatch[1].trim();
-      if (dateMatch) {
-        const d = new Date(Number(dateMatch[1]));
-        dateStr = d.toLocaleString();
-      }
+      if (dateMatch) dateStr = dateMatch[1].trim(); // already formatted string
       if (durMatch) duration = Number(durMatch[1]);
     }
 
