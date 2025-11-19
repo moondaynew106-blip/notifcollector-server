@@ -396,54 +396,49 @@
   lines.forEach(line => {
     if (!line) return;
 
-    // 🚫 Skip separator lines completely
-    if (line.startsWith("===")) return;
-    if (line.startsWith("Device:")) return;
-    if (line.startsWith("Total:")) return;
-    if (line.startsWith("----------------")) return;
-
     if (line.startsWith("Name:")) {
-      // If previous contact has data, push it
+      // Push previous before starting new
       if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
         contacts.push(current);
       }
-      current = { name: line.replace("Name:", "").trim(), phones: [], emails: [] };
+      current = {
+        name: line.replace("Name:", "").trim(),
+        phones: [],
+        emails: []
+      };
       section = null;
       return;
     }
 
-    if (line.startsWith("Phones:")) {
-      section = "phones";
-      return;
-    }
-
-    if (line.startsWith("Emails:")) {
-      section = "emails";
-      return;
-    }
+    if (line.startsWith("Phones:")) { section = "phones"; return; }
+    if (line.startsWith("Emails:")) { section = "emails"; return; }
+    if (line.startsWith("----------------")) return;
 
     if (line.startsWith("-") && section === "phones") {
-      const phone = line.replace(/^-/, "").trim();
-      if (phone && phone !== "-------------------------") {
-        current.phones.push(phone);
+      const num = line.replace(/^-/, "").trim();
+
+      // store EXACT format, only check duplicates
+      if (num && !current.phones.includes(num)) {
+        current.phones.push(num);
       }
       return;
     }
 
     if (line.startsWith("-") && section === "emails") {
-      const mail = line.replace(/^-/, "").trim();
-      current.emails.push(mail);
+      const email = line.replace(/^-/, "").trim();
+      if (email) current.emails.push(email);
       return;
     }
   });
 
-  // Push last one
+  // push last one
   if (current.name !== "Unknown" || current.phones.length || current.emails.length) {
     contacts.push(current);
   }
 
   return contacts;
 }
+
 
 
 	
@@ -762,67 +757,35 @@ if (p.includes("=== Contacts Export")) {
 
 		
 		function renderContacts(arr) {
-  if (!arr || arr.length === 0) {
-    contactsLoading.textContent = "No contacts found";
-    contactsList.innerHTML = "";
-    return;
-  }
+  if (!arr || arr.length === 0) return;
 
-  contactsLoading.textContent = `Showing ${arr.length} contacts`;
   contactsList.innerHTML = "";
+  contactsLoading.textContent = `Showing ${arr.length} contacts`;
 
-  arr.forEach((item, index) => {
-    let name = "Unknown";
-    let phones = [];
-    let emails = [];
+  arr.forEach((c, index) => {
+    const name = c.name || "Unknown";
+    const phones = c.phones || [];
 
-    // --- raw text object from Android ---
-    if (typeof item === "object") {
-      name = item.name || "Unknown";
-      phones = item.phones || [];
-      emails = item.emails || [];
+    // Choose main phone exactly as received
+    const firstPhone = phones.length ? phones[0] : "";
+
+    let display;
+
+    // If name is actually a number → show number only
+    if (name === firstPhone || name.match(/^\+?\d[\d\s()-]+$/)) {
+      display = firstPhone || name;
     } else {
-      const lines = String(item).split("\n").map(l => l.trim());
-      let section = null; // tracks if we're in Phones or Emails block
-
-      lines.forEach(line => {
-        if (!line) return;
-
-        if (line.startsWith("Name:")) {
-          name = line.replace("Name:", "").trim();
-          section = null;
-        } else if (line.startsWith("Phones:")) {
-          section = "phones";
-        } else if (line.startsWith("Emails:")) {
-          section = "emails";
-        } else if (line.startsWith("-") && section === "phones") {
-          phones.push(line.replace(/^-/, "").trim());
-        } else if (line.startsWith("-") && section === "emails") {
-          emails.push(line.replace(/^-/, "").trim());
-        } else if (line.startsWith("----------------")) {
-          section = null;
-        }
-      });
+      display = firstPhone ? `${name} (${firstPhone})` : name;
     }
 
     const li = document.createElement("li");
     li.className = "item";
 
-    const phonesStr = phones.length ? phones.join(", ") : "";
-    const emailsHtml = emails.length
-      ? emails.map(e => `<div class="muted" style="font-size:12px">✉️ ${escapeHtml(e)}</div>`).join("")
-      : "";
-
-    const mainLine = name && name !== "Unknown"
-      ? phonesStr ? `${name} (${phonesStr})` : name
-      : phonesStr || "Unknown";
-
     li.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:4px;">
         <div style="font-weight:700;color:#dce9ff;font-size:15px">
-          ${escapeHtml(mainLine)}
+          ${escapeHtml(display)}
         </div>
-        ${emailsHtml}
       </div>
       <div style="font-size:11px;color:#7a8aa3;">${index + 1}</div>
     `;
@@ -830,6 +793,7 @@ if (p.includes("=== Contacts Export")) {
     contactsList.appendChild(li);
   });
 }
+
 
 
 
