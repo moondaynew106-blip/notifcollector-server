@@ -746,6 +746,9 @@ if (p.includes("=== Contacts Export")) {
   smsList.innerHTML = "";
 
   arr.forEach((item, index) => {
+  
+  console.log("RAW SMS:", item);   // <-- ADD THIS HERE
+  
     let address = "Unknown";
     let type = "unknown";
     let dateStr = "";
