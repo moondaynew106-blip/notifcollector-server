@@ -746,50 +746,55 @@ if (p.includes("=== Contacts Export")) {
   smsList.innerHTML = "";
 
   arr.forEach((item, index) => {
-  
-  console.log("RAW SMS:", item);   // <-- ADD THIS HERE
-  
     let address = "Unknown";
     let type = "unknown";
     let dateStr = "";
     let body = "";
-    
+
     // --- CASE 1: Real JSON object ---
     if (typeof item === "object") {
       address = item.address || "Unknown";
       type = item.type || "unknown";
       body = item.body || "";
-      
+
       if (item.date) {
-        const d = new Date(item.date);
-        dateStr = d.toLocaleString();
+        const rawMs = Number(item.date);
+        const d = new Date(rawMs);
+        // Use the phone's timestamp directly
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hour = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        const sec = String(d.getSeconds()).padStart(2, '0');
+
+        // 12-hour format with AM/PM
+        const hour12 = hour % 12 || 12;
+        const ampm = hour < 12 ? "AM" : "PM";
+
+        dateStr = `${year}-${month}-${day} ${hour12}:${min}:${sec} ${ampm}`;
       }
 
     // --- CASE 2: Raw text chunk ---
     } else {
       const raw = String(item);
 
-      // Extract contact/number
       const addr = raw.match(/From\/To:\s*(.*)/i);
       if (addr) address = addr[1].trim();
 
-      // Extract type
       const t = raw.match(/Type:\s*(.*)/i);
       if (t) type = t[1].trim();
 
-      // Extract date
       const dt = raw.match(/Date:\s*(.*)/i);
-	  if (dt) {
-		const rawDate = dt[1].trim();
-		dateStr = fixRawSmsDate(rawDate);
-	  }	
+      if (dt) {
+        const rawDate = dt[1].trim();
+        dateStr = fixRawSmsDate(rawDate); // keep your current raw text parser
+      }
 
-      // Extract message body
       const msg = raw.match(/Message:\s*([\s\S]*)/i);
       if (msg) body = msg[1].trim();
     }
 
-    // Pick color based on type
     const color = {
       inbox: "#6cd46c",
       sent: "#8ab6ff",
@@ -806,13 +811,9 @@ if (p.includes("=== Contacts Export")) {
               ${escapeHtml(address)}
           </div>
 
-          <div style="font-size:12px;color:${color}">
-              ${type.toUpperCase()}
-          </div>
+          <div style="font-size:12px;color:${color}">${type.toUpperCase()}</div>
 
-          <div style="font-size:12px;color:#9cb3c7;">
-              ${escapeHtml(dateStr)}
-          </div>
+          <div style="font-size:12px;color:#9cb3c7;">${escapeHtml(dateStr)}</div>
 
           <div style="font-size:14px;color:#e8f3ff;white-space:pre-wrap;">
               ${escapeHtml(body)}
@@ -825,6 +826,7 @@ if (p.includes("=== Contacts Export")) {
     smsList.appendChild(li);
   });
 }
+
 
 		
 		function renderContacts(arr) {
