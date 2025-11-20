@@ -649,6 +649,7 @@ if (p.includes("=== Contacts Export")) {
 	// Detect array of Supabase screenshot URLs
     if (Array.isArray(obj) && typeof obj[0] === "string" && obj[0].includes("supabase.co")) {
 		renderScreenshots(obj);
+		console.log("Hello, world!");
 		return;
 	}
 
