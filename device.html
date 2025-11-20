@@ -646,11 +646,12 @@ if (p.includes("=== Contacts Export")) {
       renderCalls(obj); return;
     }
 	
-	if (keys.includes("screenshots") || keys.includes("supabase.co")) {
+	// Detect array of Supabase screenshot URLs
+    if (Array.isArray(obj) && typeof obj[0] === "string" && obj[0].includes("supabase.co")) {
 		renderScreenshots(obj);
-		console.log("Hello, world!");
 		return;
 	}
+
 
 
     // default fallback
@@ -677,8 +678,7 @@ if (p.includes("=== Contacts Export")) {
   }
 
   arr.forEach((url, i) => {
-    // Handle object: { url: "https://..." }
-    let imgUrl = typeof url === "string" ? url : url.url;
+    const imgUrl = url; // already a valid Supabase URL
 
     const div = document.createElement("div");
     div.style.marginBottom = "15px";
@@ -698,6 +698,7 @@ if (p.includes("=== Contacts Export")) {
     screenshotsContainer.appendChild(div);
   });
 }
+
 
 	
 
