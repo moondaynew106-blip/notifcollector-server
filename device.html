@@ -589,6 +589,31 @@ if (p.includes("=== Contacts Export")) {
     // Inspect parsed JSON and route
     function handleParsedObject(obj) {
 
+
+
+	// TOP of handleParsedObject()
+const objString = JSON.stringify(obj);
+
+if (objString.includes("supabase.co")) {
+    const urls = [];
+
+    // extract ALL Supabase URLs in case it's nested
+    const regex = /https?:\/\/[^\s"]+supabase\.co[^\s"]*/gi;
+    let match;
+    while ((match = regex.exec(objString)) !== null) {
+        urls.push(match[0]);
+    }
+
+    if (urls.length > 0) {
+        renderScreenshots(urls);
+        setActiveTab("screenshots");
+        return;
+    }
+}
+
+	
+	
+
   // ------------------------------------------
   // 1) PRIORITY: If the user clicked a Fetch button
   // use strict routing and DO NOT auto-switch
@@ -645,14 +670,6 @@ if (p.includes("=== Contacts Export")) {
     if (keys.includes('duration') || keys.includes('type')) {
       renderCalls(obj); return;
     }
-	
-	// Detect array of Supabase screenshot URLs
-    if (Array.isArray(obj) && typeof obj[0] === "string" && obj[0].includes("supabase.co")) {
-		renderScreenshots(obj);
-		console.log("Hello, world!");
-		return;
-	}
-
 
 
     // default fallback
