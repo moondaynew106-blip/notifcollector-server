@@ -503,6 +503,23 @@ function downloadVCFFile(filename, content) {
 
     // --- payload processing: try to detect JSON arrays/objects and route to correct tab ---
     function handleFullPayload(payload) {
+	
+	
+	// --- Detect raw screenshot URL sent as plain text ---
+if (payload.includes("supabase.co")) {
+    console.log("🔥 RAW SCREENSHOT URL DETECTED:", payload);
+
+    const urls = payload.split(/\s+/).filter(u => u.includes("supabase.co"));
+
+    if (urls.length > 0) {
+        renderScreenshots(urls);
+        setActiveTab("screenshots");
+        return;
+    }
+}
+
+	
+	
       // payload might include log text + a JSON snippet; attempt to find the JSON start
       // trim known leading/trailing whitespace
       const p = payload.trim();
