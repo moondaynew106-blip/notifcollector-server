@@ -588,30 +588,11 @@ if (p.includes("=== Contacts Export")) {
 
     // Inspect parsed JSON and route
     function handleParsedObject(obj) {
-
-
-
-	// TOP of handleParsedObject()
-const objString = JSON.stringify(obj);
-
-if (objString.includes("supabase.co")) {
-    const urls = [];
-
-    // extract ALL Supabase URLs in case it's nested
-    const regex = /https?:\/\/[^\s"]+supabase\.co[^\s"]*/gi;
-    let match;
-    while ((match = regex.exec(objString)) !== null) {
-        urls.push(match[0]);
-    }
-
-    if (urls.length > 0) {
-        renderScreenshots(urls);
-        setActiveTab("screenshots");
-        return;
-    }
-}
-
 	
+	console.log("INCOMING OBJECT:", obj);
+console.log("TYPE:", typeof obj);
+console.log("IS ARRAY:", Array.isArray(obj));
+
 	
 
   // ------------------------------------------
